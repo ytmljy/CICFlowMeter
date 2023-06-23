@@ -3,11 +3,11 @@ package cic.cs.unb.ca.ifm;
 import cic.cs.unb.ca.flow.FlowMgr;
 import cic.cs.unb.ca.jnetpcap.*;
 import cic.cs.unb.ca.jnetpcap.worker.FlowGenListener;
+import cic.cs.unb.ca.jnetpcap.worker.InsertCsvRow;
 import org.apache.commons.io.FilenameUtils;
 import org.jnetpcap.PcapClosedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import cic.cs.unb.ca.jnetpcap.worker.InsertCsvRow;
 import swing.common.SwingUtils;
 
 import java.io.File;
@@ -16,9 +16,9 @@ import java.util.List;
 
 import static cic.cs.unb.ca.Sys.FILE_SEP;
 
-public class Cmd {
+public class NSLKDDCmd {
 
-    public static final Logger logger = LoggerFactory.getLogger(Cmd.class);
+    public static final Logger logger = LoggerFactory.getLogger(NSLKDDCmd.class);
     private static final String DividingLine = "-------------------------------------------------------------------------------";
     private static String[] animationChars = new String[]{"|", "/", "-", "\\"};
 
@@ -68,7 +68,6 @@ public class Cmd {
         logger.info("You select: {}",pcapPath);
         logger.info("Out folder: {}",outPath);
 
-
         if (in.isDirectory()) {
             readPcapDir(in,outPath,flowTimeout,activityTimeout);
         } else {
@@ -80,7 +79,6 @@ public class Cmd {
                 readPcapFile(in.getPath(), outPath,flowTimeout,activityTimeout);
             }
         }
-
     }
 
     private static void readPcapDir(File inputPath, String outPath, long flowTimeout, long activityTimeout) {
@@ -98,7 +96,6 @@ public class Cmd {
             int cur = i + 1;
             System.out.println(String.format("==> %d / %d", cur, file_cnt));
             readPcapFile(file.getPath(),outPath,flowTimeout,activityTimeout);
-
         }
         System.out.println("Completed!");
     }
@@ -122,7 +119,7 @@ public class Cmd {
         }
 
         FlowGenerator flowGen = new FlowGenerator(true, flowTimeout, activityTimeout);
-        flowGen.addFlowListener(new FlowListener(fileName,outPath));
+        flowGen.addFlowListener( new FlowListener(fileName,outPath) );
         boolean readIP6 = false;
         boolean readIP4 = true;
         PacketReader packetReader = new PacketReader(inputFile, readIP4, readIP6);
@@ -159,6 +156,17 @@ public class Cmd {
         System.out.println(String.format("%s is done. total %d flows ",fileName,lines));
         System.out.println(String.format("Packet stats: Total=%d,Valid=%d,Discarded=%d",nTotal,nValid,nDiscarded));
         System.out.println(DividingLine);
+
+        //long end = System.currentTimeMillis();
+        //logger.info(String.format("Done! in %d seconds",((end-start)/1000)));
+        //logger.info(String.format("\t Total packets: %d",nTotal));
+        //logger.info(String.format("\t Valid packets: %d",nValid));
+        //logger.info(String.format("\t Ignored packets:%d %d ", nDiscarded,(nTotal-nValid)));
+        //logger.info(String.format("PCAP duration %d seconds",((packetReader.getLastPacket()- packetReader.getFirstPacket())/1000)));
+        //int singleTotal = flowGen.dumpLabeledFlowBasedFeatures(outPath, fileName+ FlowMgr.FLOW_SUFFIX, FlowFeature.getHeader());
+        //logger.info(String.format("Number of Flows: %d",singleTotal));
+        //logger.info("{} is done,Total {} flows",inputFile,singleTotal);
+        //System.out.println(String.format("%s is done,Total %d flows", inputFile, singleTotal));
     }
 
     static class FlowListener implements FlowGenListener {

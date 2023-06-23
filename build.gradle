@@ -17,7 +17,8 @@ repositories {
 dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.0'
     compile group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.7.25'
-    compile group: 'org.jnetpcap', name: 'jnetpcap', version:'1.4.1'
+//    compile group: 'jnetpcap', name: 'jnetpcap', version:'1.4.r1425-1g'
+    implementation files("jnetpcap/win/jnetpcap-1.4.r1425/jnetpcap.jar")
     compile group: 'junit', name: 'junit', version:'4.12'
     compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.6'
     compile group: 'org.apache.commons', name: 'commons-math3', version:'3.5'
@@ -95,14 +96,13 @@ task fatJar(type: Jar) {
 task execute(type: JavaExec) {
     println 'type JavaExec'
 
-
     main = "cic.cs.unb.ca.ifm.App" //main class
     classpath = sourceSets.main.runtimeClasspath
     String osName = System.getProperty('os.name').toLowerCase()
     if(osName.contains('windows')){
-        jvmArgs '-Djava.library.path=jnetpcap/win/jnetpcap-1.4.r1425'
+        jvmArgs '-Djava.library.path=D:\\test\\lib'
     }else{
-        jvmArgs '-Djava.library.path=jnetpcap/linux/jnetpcap-1.4.r1425'
+        jvmArgs '-Djava.library.path=D:\\test\\lib'
     }
 }
 
@@ -116,7 +116,7 @@ task exeCMD(type: JavaExec){
     }else{
         jvmArgs '-Djava.library.path=jnetpcap/linux/jnetpcap-1.4.r1425'
     }
-    //args = ["/home/yzhang29/0a/Capture/", "/home/yzhang29/0a/Capture/out/"]
+    args = ["D:\\test\\in", "D:\\test\\out"]
 }
 
 

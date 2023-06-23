@@ -4,40 +4,28 @@ import cic.cs.unb.ca.jnetpcap.worker.FlowGenListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
 import static cic.cs.unb.ca.jnetpcap.Utils.LINE_SEP;
 
 
-public class FlowGenerator {
-    public static final Logger logger = LoggerFactory.getLogger(FlowGenerator.class);
+public class NSLKDDFlowGenerator {
+    public static final Logger logger = LoggerFactory.getLogger(NSLKDDFlowGenerator.class);
 
-    //total 85 colums
-	/*public static final String timeBasedHeader = "Flow ID, Source IP, Source Port, Destination IP, Destination Port, Protocol, "
-			+ "Timestamp, Flow Duration, Total Fwd Packets, Total Backward Packets,"
-			+ "Total Length of Fwd Packets, Total Length of Bwd Packets, "
-			+ "Fwd Packet Length Max, Fwd Packet Length Min, Fwd Packet Length Mean, Fwd Packet Length Std,"
-			+ "Bwd Packet Length Max, Bwd Packet Length Min, Bwd Packet Length Mean, Bwd Packet Length Std,"
-			+ "Flow Bytes/s, Flow Packets/s, Flow IAT Mean, Flow IAT Std, Flow IAT Max, Flow IAT Min,"
-			+ "Fwd IAT Total, Fwd IAT Mean, Fwd IAT Std, Fwd IAT Max, Fwd IAT Min,"
-			+ "Bwd IAT Total, Bwd IAT Mean, Bwd IAT Std, Bwd IAT Max, Bwd IAT Min,"
-			+ "Fwd PSH Flags, Bwd PSH Flags, Fwd URG Flags, Bwd URG Flags, Fwd Header Length, Bwd Header Length,"
-			+ "Fwd Packets/s, Bwd Packets/s, Min Packet Length, Max Packet Length, Packet Length Mean, Packet Length Std, Packet Length Variance,"
-			+ "FIN Flag Count, SYN Flag Count, RST Flag Count, PSH Flag Count, ACK Flag Count, URG Flag Count, "
-			+ "CWR Flag Count, ECE Flag Count, Down/Up Ratio, Average Packet Size, Avg Fwd Segment Size, Avg Bwd Segment Size, Fwd Header Length,"
-			+ "Fwd Avg Bytes/Bulk, Fwd Avg Packets/Bulk, Fwd Avg Bulk Rate, Bwd Avg Bytes/Bulk, Bwd Avg Packets/Bulk,"
-			+ "Bwd Avg Bulk Rate,"
-			+ "Subflow Fwd Packets, Subflow Fwd Bytes, Subflow Bwd Packets, Subflow Bwd Bytes,"
-			+ "Init_Win_bytes_forward, Init_Win_bytes_backward, act_data_pkt_fwd, min_seg_size_forward,"
-			+ "Active Mean, Active Std, Active Max, Active Min,"
-			+ "Idle Mean, Idle Std, Idle Max, Idle Min, Label";*/
+    //total 41
+	/*
+	Duration	, Protocol Type	, Service	, Flag	, Src Bytes	, Dst Bytes	, Land	, Wrong Fragment	, Urgent	, Hot	,
+	Num Failed Logins	, Logged In	, Num Compromised	, Root Shell	, Su Attempted	,Num Root	, Num File Creations	, Num Shells	, Num Access Files	, Num Outbound Cmds	,
+	Is Hot Logins	, Is Guest Login	, Count	, Srv Count	, Serror Rate	, Srv Serror Rate	, Rerror Rate	, Srv Rerror Rate	, Same Srv Rate	, Diff Srv Rate	,
+	Srv Diff Host Rate	, Dst Host Count	, Dst Host Srv Count	, Dst Host Same Srv Rate	, Dst Host Diff Srv Rate	, Dst Host Same Src Port Rate	, Dst Host Srv Diff Host Rate	, Dst Host Serror Rate	, Dst Host Srv Serror Rate	, Dst Host Rerror Rate	, Dst Host Srv Rerror Rate	,
+	Class	, Difficulty Level
+	 */
 
 	//40/86
 	private FlowGenListener mListener;
@@ -49,8 +37,8 @@ public class FlowGenerator {
 	private long    flowTimeOut;
 	private long    flowActivityTimeOut;
 	private int     finishedFlowCount;
-	
-	public FlowGenerator(boolean bidirectional, long flowTimeout, long activityTimeout) {
+
+	public NSLKDDFlowGenerator(boolean bidirectional, long flowTimeout, long activityTimeout) {
 		super();
 		this.bidirectional = bidirectional;
 		this.flowTimeOut = flowTimeout;
@@ -79,8 +67,7 @@ public class FlowGenerator {
 		String id;
 
     	if( this.currentFlows.containsKey(packet.fwdFlowId()) || this.currentFlows.containsKey(packet.bwdFlowId()) ) {
-	
-			if(this.currentFlows.containsKey(packet.fwdFlowId())) {
+			if( this.currentFlows.containsKey(packet.fwdFlowId()) ) {
 				id = packet.fwdFlowId();
 			} else {
 				id = packet.bwdFlowId();
@@ -91,14 +78,13 @@ public class FlowGenerator {
     		// 1.- we move the flow to finished flow list
     		// 2.- we eliminate the flow from the current flow list
     		// 3.- we create a new flow with the packet-in-process
-    		if((currentTimestamp -flow.getFlowStartTime())>flowTimeOut){
+    		if( (currentTimestamp - flow.getFlowStartTime()) > flowTimeOut ){
     			if(flow.packetCount()>1){
 					if (mListener != null) {
 						mListener.onFlowGenerated(flow);
-					    }
-					else{
-                                                finishedFlows.put(getFlowCount(), flow);
-                                            }
+					} else {
+                         finishedFlows.put(getFlowCount(), flow);
+                    }
                     //flow.endActiveIdleTime(currentTimestamp,this.flowActivityTimeOut, this.flowTimeOut, false);
     			}
     			currentFlows.remove(id);    			
