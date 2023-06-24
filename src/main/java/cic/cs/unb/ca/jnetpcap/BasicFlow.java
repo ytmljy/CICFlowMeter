@@ -7,6 +7,8 @@ import java.util.List;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.jnetpcap.packet.format.FormatUtils;
 
+import static cic.cs.unb.ca.jnetpcap.NSLKDDConst.conversation_state_t.*;
+
 public class BasicFlow {
 
 	private final static String separator = ",";
@@ -23,6 +25,7 @@ public class BasicFlow {
 	private 	boolean isBidirectional;
 
 	private 	HashMap<String, MutableInt> flagCounts;
+	private		NSLKDDConst.conversation_state_t flag = NSLKDDConst.conversation_state_t.INIT;
 
 	private 	int fPSH_cnt;
 	private 	int bPSH_cnt;
@@ -315,6 +318,128 @@ public class BasicFlow {
 			//MutableInt count8 = flagCounts.get("ECE");
 			//count8.increment();
 			flagCounts.get("ECE").increment();
+		}
+
+		updateFlag(packet);
+	}
+
+	private void updateFlag(BasicPacketInfo packet) {
+		// Is the packet from originator or responder?
+		// if(Arrays.equals(this.src, packet.getSrc())){
+		boolean originator = Arrays.equals(this.src, packet.getSrc());
+		switch (this.flag) {
+			case INIT:
+				if( packet.hasFlagSYN() && packet.hasFlagACK() )
+					flag = S4;
+				else if ( packet.hasFlagSYN() )
+					flag = S1;
+				else
+					flag = OTH;
+				break;
+			case S0:
+				if (originator) {
+					if ( packet.hasFlagRST() )
+						flag = RSTOS0;
+					else if ( packet.hasFlagFIN() )
+						flag = SH;
+				}
+				else { // from responder
+					if ( packet.hasFlagRST() )
+						flag = REJ;
+					else if ( packet.hasFlagSYN() && packet.hasFlagACK() )
+						flag = S1;
+				}
+				break;
+			case S4:
+				if (originator) {
+					if ( packet.hasFlagRST() )
+						flag = RSTRH;
+					else if ( packet.hasFlagFIN() )
+						flag = SHR;
+				}
+				break;
+			case S1:
+				if (originator) {
+					if ( packet.hasFlagRST() )
+						flag = RSTO;
+					else if ( packet.hasFlagACK() )
+						flag = ESTAB;
+				}
+				else { // responder
+					if ( packet.hasFlagRST() )
+						flag = RSTR;
+				}
+				break;
+			case ESTAB:
+				if (originator) {
+					if ( packet.hasFlagRST() )
+						flag = RSTO;
+					else if ( packet.hasFlagFIN() )
+						flag = S2;
+				}
+				else { // responder
+					if ( packet.hasFlagRST() )
+						flag = RSTR;
+					else if ( packet.hasFlagFIN() )
+						flag = S3;
+				}
+				break;
+
+			case S2:
+				if (originator) {
+					if ( packet.hasFlagRST() )
+						flag = RSTO;
+				}
+				else { // responder
+					if ( packet.hasFlagRST() )
+						flag = RSTR;
+					else if ( packet.hasFlagFIN() )
+						flag = S2F;
+				}
+				break;
+
+			case S3:
+				if (originator) {
+					if ( packet.hasFlagRST() )
+						flag = RSTO;
+					else if ( packet.hasFlagFIN() )
+						flag = S3F;
+				}
+				else { // responder
+					if ( packet.hasFlagRST() )
+						flag = RSTR;
+				}
+				break;
+
+			case S2F:
+				if (originator) {
+					if ( packet.hasFlagRST() )
+						flag = RSTO;
+					else if ( packet.hasFlagACK() )
+						flag = SF;
+				}
+				else { // responder
+					if ( packet.hasFlagRST() )
+						flag = RSTR;
+				}
+				break;
+
+			case S3F:
+				if (originator) {
+					if ( packet.hasFlagRST() )
+						flag = RSTO;
+				}
+				else { // responder
+					if ( packet.hasFlagRST() )
+						flag = RSTR;
+					else if ( packet.hasFlagACK() )
+						flag = SF;
+				}
+				break;
+
+			default:
+				break;
+
 		}
 	}
 
@@ -1260,7 +1385,6 @@ public class BasicFlow {
     	
     	return dump.toString();
     }
-}
 
 	public String dumpFlowBasedFeaturesEx() {
 		StringBuilder dump = new StringBuilder();
