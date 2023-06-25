@@ -4,13 +4,18 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import cic.cs.unb.ca.ifm.Cmd;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.jnetpcap.packet.format.FormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static cic.cs.unb.ca.jnetpcap.NSLKDDConst.conversation_state_t.*;
 
 public class BasicFlow {
 
+	public static final Logger logger = LoggerFactory.getLogger(BasicFlow.class);
 	private final static String separator = ",";
 	private     SummaryStatistics 		fwdPktStats = null;
 	private		SummaryStatistics 		bwdPktStats = null;
@@ -25,7 +30,6 @@ public class BasicFlow {
 	private 	boolean isBidirectional;
 
 	private 	HashMap<String, MutableInt> flagCounts;
-	private		NSLKDDConst.conversation_state_t flag = NSLKDDConst.conversation_state_t.INIT;
 
 	private 	int fPSH_cnt;
 	private 	int bPSH_cnt;
@@ -61,6 +65,12 @@ public class BasicFlow {
     private     long   forwardLastSeen;
     private     long   backwardLastSeen;
     private     long   activityTimeout;
+
+	//NSL-KDD DataSet 추가
+	private		NSLKDDConst.conversation_state_t flag = NSLKDDConst.conversation_state_t.INIT;
+	private 	NSLKDDConst.service_t service;
+	private 	int urgent_packets;
+
 
 	public BasicFlow(boolean isBidirectional,BasicPacketInfo packet, byte[] flowSrc, byte[] flowDst, int flowSrcPort, int flowDstPort, long activityTimeout) {
 		super();
@@ -124,6 +134,7 @@ public class BasicFlow {
 		updateFlowBulk(packet);
 		detectUpdateSubflows(packet);
 		checkFlags(packet);
+		updateService(packet);
 		this.flowStartTime = packet.getTimeStamp();
 		this.flowLastSeen = packet.getTimeStamp();
 		this.startActiveTime = packet.getTimeStamp();
@@ -170,13 +181,17 @@ public class BasicFlow {
 			}
 		}
 		this.protocol = packet.getProtocol();
-		this.flowId = packet.getFlowId();		
+		this.flowId = packet.getFlowId();
+
+		if( packet.hasFlagURG() )
+			urgent_packets++;
 	}
     
     public void addPacket(BasicPacketInfo packet){
 		updateFlowBulk(packet);
 		detectUpdateSubflows(packet);
 		checkFlags(packet);
+		//updateService(packet);
     	long currentTimestamp = packet.getTimeStamp();
     	if(isBidirectional){
 			this.flowLengthStats.addValue((double)packet.getPayloadBytes());
@@ -221,7 +236,9 @@ public class BasicFlow {
 
     	this.flowIAT.addValue(packet.getTimeStamp()-this.flowLastSeen);
     	this.flowLastSeen = packet.getTimeStamp();
-    	
+
+		if( packet.hasFlagURG() )
+			urgent_packets++;
     }
 
 	public double getfPktsPerSecond(){
@@ -443,8 +460,19 @@ public class BasicFlow {
 		}
 	}
 
+	private void updateService(BasicPacketInfo packet) {
 
-
+		if( packet.getProtocol() == NSLKDDConst.PROTOCOL_TYPE_ICMP )
+			service = NSLKDDUtility.get_service_icmp();
+		else if( packet.getProtocol() == NSLKDDConst.PROTOCOL_TYPE_TCP )
+			service = NSLKDDUtility.get_service_tcp(packet.getSrcPort(), packet.getDstPort());
+		else if( packet.getProtocol() == NSLKDDConst.PROTOCOL_TYPE_UDP)
+			service = NSLKDDUtility.get_service_udp(packet.getSrcPort(), packet.getDstPort());
+		else {
+			service = NSLKDDConst.service_t.SRV_OTHER;
+			logger.error("invalid prototol:" + packet.getProtocol());
+		}
+	}
 
 	public long getSflow_fbytes(){
 		if(sfCount <= 0) return 0;
@@ -1215,15 +1243,37 @@ public class BasicFlow {
 	
     public String dumpFlowBasedFeaturesNSLKDD() {
     	StringBuilder dump = new StringBuilder();
-    	
-    	dump.append("NA").append(separator);                					//Duration
-    	dump.append(FormatUtils.ip(src)).append(separator);   					//Protocol Type  PROTO_ZERO = 0, ICMP = 1,	TCP = 6,UDP = 17
-    	dump.append("NA").append(separator);          							//Service
-    	dump.append(FormatUtils.ip(dst)).append(separator);  					//Flag
-    	dump.append(getDstPort()).append(separator);          					//5
-    	dump.append(getProtocol()).append(separator);         					//6
-    	
-    	String starttime = DateFormatter.convertMilliseconds2String(flowStartTime/1000L, "dd/MM/yyyy hh:mm:ss a");
+
+		//Basic Feature (Total: 9)
+    	dump.append("NA").append(separator);                					//01 Duration
+    	dump.append(FormatUtils.ip(src)).append(separator);   					//02 Protocol Type  PROTO_ZERO = 0, ICMP = 1,	TCP = 6,UDP = 17
+    	dump.append(this.service).append(separator);          					//03 Service
+    	dump.append(this.flag).append(separator);  								//04 Flag
+    	dump.append(this.getSflow_fbytes()).append(separator);          		//05 Src Bytes
+		dump.append(this.getSflow_bbytes()).append(separator);         			//06 Dst Bytes
+		dump.append(this.src.equals(this.dst) && this.srcPort == this.dstPort ? 1 : 0).append(separator); 	//07 LAND
+		dump.append("0").append(separator);         							//08 Wrong Fragment
+		dump.append(urgent_packets).append(separator);         					//09 Urgent
+
+		//Content Featureres (Total: 13)
+		dump.append(0).append(separator);         								//10 Hot
+		dump.append(0).append(separator);         								//11 Hot
+		dump.append(0).append(separator);         								//12 Hot
+		dump.append(0).append(separator);         								//13 Hot
+		dump.append(0).append(separator);         								//14 Hot
+		dump.append(0).append(separator);         								//15 Hot
+		dump.append(0).append(separator);         								//16 Hot
+		dump.append(0).append(separator);         								//17 Hot
+		dump.append(0).append(separator);         								//18 Hot
+		dump.append(0).append(separator);         								//19 Hot
+		dump.append(0).append(separator);         								//20 Hot
+		dump.append(0).append(separator);         								//21 Hot
+		dump.append(0).append(separator);         								//22 Hot
+
+		//Time-Based Features (Total: 9)
+		//Count
+
+		String starttime = DateFormatter.convertMilliseconds2String(flowStartTime/1000L, "dd/MM/yyyy hh:mm:ss a");
     	dump.append(starttime).append(separator);									//7
     	
     	long flowDuration = flowLastSeen - flowStartTime;
