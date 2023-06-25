@@ -5,13 +5,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import cic.cs.unb.ca.ifm.Cmd;
+import cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst;
+import cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDUtility;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.jnetpcap.packet.format.FormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static cic.cs.unb.ca.jnetpcap.NSLKDDConst.conversation_state_t.*;
+import static cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst.conversation_state_t.*;
 
 public class BasicFlow {
 
@@ -185,6 +186,10 @@ public class BasicFlow {
 
 		if( packet.hasFlagURG() )
 			urgent_packets++;
+
+		//NSL-KDD TimeBaseFeature
+		FlowGenerator.timeBasedFeatureStat.addConnection(packet.getDestinationIP(), packet.getDstPort(), packet.getProtocol(), this.service);
+		FlowGenerator.timeBasedFeatureStat.addFlag(this.getDstIP(), this.getDstPort(), this.protocol, this.flag);
 	}
     
     public void addPacket(BasicPacketInfo packet){
@@ -239,6 +244,8 @@ public class BasicFlow {
 
 		if( packet.hasFlagURG() )
 			urgent_packets++;
+
+		FlowGenerator.timeBasedFeatureStat.addFlag(this.getDstIP(), this.getDstPort(), this.protocol, this.flag);
     }
 
 	public double getfPktsPerSecond(){
@@ -1245,13 +1252,14 @@ public class BasicFlow {
     	StringBuilder dump = new StringBuilder();
 
 		//Basic Feature (Total: 9)
-    	dump.append("NA").append(separator);                					//01 Duration
-    	dump.append(FormatUtils.ip(src)).append(separator);   					//02 Protocol Type  PROTO_ZERO = 0, ICMP = 1,	TCP = 6,UDP = 17
+		long flowDuration = flowLastSeen - flowStartTime;
+		dump.append(flowDuration).append(separator);							//01 Duration
+		dump.append(FormatUtils.ip(src)).append(separator);   					//02 Protocol Type  PROTO_ZERO = 0, ICMP = 1,	TCP = 6,UDP = 17
     	dump.append(this.service).append(separator);          					//03 Service
     	dump.append(this.flag).append(separator);  								//04 Flag
     	dump.append(this.getSflow_fbytes()).append(separator);          		//05 Src Bytes
 		dump.append(this.getSflow_bbytes()).append(separator);         			//06 Dst Bytes
-		dump.append(this.src.equals(this.dst) && this.srcPort == this.dstPort ? 1 : 0).append(separator); 	//07 LAND
+		dump.append(this.getSrcIP().equals(this.getDstIP()) && this.srcPort == this.dstPort ? 1 : 0).append(separator); 	//07 LAND
 		dump.append("0").append(separator);         							//08 Wrong Fragment
 		dump.append(urgent_packets).append(separator);         					//09 Urgent
 
@@ -1271,14 +1279,17 @@ public class BasicFlow {
 		dump.append(0).append(separator);         								//22 Hot
 
 		//Time-Based Features (Total: 9)
-		//Count
+		dump.append(FlowGenerator.timeBasedFeatureStat.getCount(this.getDstIP(), this.protocol)).append(separator);	//23 Count
+		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvCount(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//24 Srv Count
+		dump.append(FlowGenerator.timeBasedFeatureStat.getSerrorRate(this.getDstIP(), this.protocol)).append(separator);	//25 Serror Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvSerrorRate(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//26 Srv Serror Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getRerrorRate(this.getDstIP(), this.protocol)).append(separator);	//27	Rerror Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//28 Srv Rerror Rate
 
 		String starttime = DateFormatter.convertMilliseconds2String(flowStartTime/1000L, "dd/MM/yyyy hh:mm:ss a");
     	dump.append(starttime).append(separator);									//7
     	
-    	long flowDuration = flowLastSeen - flowStartTime;
-    	dump.append(flowDuration).append(separator);								//8
-    	
+
     	dump.append(fwdPktStats.getN()).append(separator);							//9
     	dump.append(bwdPktStats.getN()).append(separator);							//10	
     	dump.append(fwdPktStats.getSum()).append(separator);						//11

@@ -1,9 +1,7 @@
-package cic.cs.unb.ca.jnetpcap;
+package cic.cs.unb.ca.jnetpcap.nslkdd;
 
 
-import static cic.cs.unb.ca.jnetpcap.NSLKDDConst.icmp_field_type_t.*;
-import static cic.cs.unb.ca.jnetpcap.NSLKDDConst.service_t.*;
-import static cic.cs.unb.ca.jnetpcap.NSLKDDConst.conversation_state_t.*;
+import static cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst.service_t.*;
 
 public class NSLKDDUtility {
 
