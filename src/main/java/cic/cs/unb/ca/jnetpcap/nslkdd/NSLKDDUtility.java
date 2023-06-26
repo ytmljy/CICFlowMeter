@@ -1,6 +1,7 @@
 package cic.cs.unb.ca.jnetpcap.nslkdd;
 
 
+import static cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst.icmp_field_type_t.*;
 import static cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst.service_t.*;
 
 public class NSLKDDUtility {
@@ -387,6 +388,58 @@ public class NSLKDDUtility {
 
             default:
                 return SRV_OTH_I;	// Other ICMP messages;
+        }
+    }
+
+    /*
+     public static enum icmp_field_type_t {
+        ECHOREPLY, // 0,
+                DEST_UNREACH, // 3,
+                SOURCE_QUENCH, // 4,
+                REDIRECT, // 5,
+                ECHO, // 8,
+                TIME_EXCEEDED, // 11,
+                PARAMETERPROB, // = 12,
+                TIMESTAMP, // = 13,
+                TIMESTAMPREPLY, // = 14,
+                INFO_REQUEST, // = 15,
+                INFO_REPLY, // = 16,
+                ADDRESS, // = 17,
+                ADDRESSREPLY // = 18
+    };
+     */
+
+    public static NSLKDDConst.icmp_field_type_t getIcmpType(int icmpType) {
+
+        switch(icmpType) {
+            case 0:
+                return ECHOREPLY;
+            case 3:
+                return DEST_UNREACH;
+            case 4:
+                return SOURCE_QUENCH;
+            case 5:
+                return REDIRECT;
+            case 8:
+                return ECHO;
+            case 11:
+                return TIME_EXCEEDED;
+            case 12:
+                return PARAMETERPROB;
+            case 13:
+                return TIMESTAMP;
+            case 14:
+                return TIMESTAMPREPLY;
+            case 15:
+                return INFO_REQUEST;
+            case 16:
+                return INFO_REPLY;
+            case 17:
+                return ADDRESS;
+            case 18:
+                return ADDRESSREPLY;
+            default:
+                return ECHOREPLY;
         }
     }
 

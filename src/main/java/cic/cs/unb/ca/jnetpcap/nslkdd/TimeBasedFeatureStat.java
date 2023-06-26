@@ -1,5 +1,6 @@
 package cic.cs.unb.ca.jnetpcap.nslkdd;
 
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TimeBasedFeatureStat implements Runnable{
@@ -11,10 +12,8 @@ public class TimeBasedFeatureStat implements Runnable{
     private ConcurrentHashMap<String, Integer> rerrorRateMap = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Integer> srvRerrorRateMap = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Integer> srvMap = new ConcurrentHashMap<>();
-
-
     private long sleepTime = 2 * 1000;
-S
+
     public TimeBasedFeatureStat(int sleepTimeSecond) {
         this.sleepTime = sleepTimeSecond * 1000;
     }
@@ -45,11 +44,11 @@ S
             countMap.put(dstIp + "_" + protocol, 1);
         }
 
-        if( srvCountMap.containsKey(dstIp + "_" + dstPort + "_" + protocol) ) {
-            int tmpCount = srvCountMap.get(dstIp + "_" + dstPort + "_" + protocol);
-            srvCountMap.put(dstIp + "_" + dstPort + "_" + protocol, tmpCount+1);
+        if( srvCountMap.containsKey(dstPort + "_" + protocol) ) {
+            int tmpCount = srvCountMap.get(dstPort + "_" + protocol);
+            srvCountMap.put(dstPort + "_" + protocol, tmpCount+1);
         } else {
-            srvCountMap.put(dstIp + "_" + dstPort + "_" + protocol, 1);
+            srvCountMap.put(dstPort + "_" + protocol, 1);
         }
 
         if( srvMap.containsKey(dstIp + "_" + service) ) {
@@ -74,11 +73,11 @@ S
                 serrorRateMap.put(dstIp + "_" + protocol, 1);
             }
 
-            if( srvSerrorRateMap.containsKey(dstIp + "_" + dstPort + "_" + protocol) ) {
-                int tmpCount = srvSerrorRateMap.get(dstIp + "_" + dstPort + "_" + protocol);
-                srvSerrorRateMap.put(dstIp + "_" + dstPort + "_" + protocol, tmpCount+1);
+            if( srvSerrorRateMap.containsKey(dstPort + "_" + protocol) ) {
+                int tmpCount = srvSerrorRateMap.get(dstPort + "_" + protocol);
+                srvSerrorRateMap.put(dstPort + "_" + protocol, tmpCount+1);
             } else {
-                srvSerrorRateMap.put(dstIp + "_" + dstPort + "_" + protocol, 1);
+                srvSerrorRateMap.put(dstPort + "_" + protocol, 1);
             }
         } else if( flag == NSLKDDConst.conversation_state_t.REJ ) {
             if( rerrorRateMap.containsKey(dstIp + "_" + protocol) ) {
@@ -88,11 +87,11 @@ S
                 rerrorRateMap.put(dstIp + "_" + protocol, 1);
             }
 
-            if( srvRerrorRateMap.containsKey(dstIp + "_" + dstPort + "_" + protocol) ) {
-                int tmpCount = srvRerrorRateMap.get(dstIp + "_" + dstPort + "_" + protocol);
-                srvRerrorRateMap.put(dstIp + "_" + dstPort + "_" + protocol, tmpCount+1);
+            if( srvRerrorRateMap.containsKey(dstPort + "_" + protocol) ) {
+                int tmpCount = srvRerrorRateMap.get(dstPort + "_" + protocol);
+                srvRerrorRateMap.put(dstPort + "_" + protocol, tmpCount+1);
             } else {
-                srvRerrorRateMap.put(dstIp + "_" + dstPort + "_" + protocol, 1);
+                srvRerrorRateMap.put(dstPort + "_" + protocol, 1);
             }
         } else {
 
@@ -124,8 +123,8 @@ S
     }
 
     public int getSrvSerrorCount(String dstIp, int dstPort, int protocol) {
-        if( srvSerrorRateMap.containsKey(dstIp + "_" + dstPort + "_" + protocol) ) {
-            return srvSerrorRateMap.get(dstIp + "_" + dstPort + "_" + protocol);
+        if( srvSerrorRateMap.containsKey(dstPort + "_" + protocol) ) {
+            return srvSerrorRateMap.get(dstPort + "_" + protocol);
         } else {
             return 0;
         }
@@ -160,8 +159,8 @@ S
     }
 
     public int getSrvRerrorCount(String dstIp, int dstPort, int protocol) {
-        if( srvRerrorRateMap.containsKey(dstIp + "_" + dstPort + "_" + protocol) ) {
-            return srvRerrorRateMap.get(dstIp + "_" + dstPort + "_" + protocol);
+        if( srvRerrorRateMap.containsKey(dstPort + "_" + protocol) ) {
+            return srvRerrorRateMap.get(dstPort + "_" + protocol);
         } else {
             return 0;
         }
@@ -185,5 +184,68 @@ S
             return 0;
         else
             return rerrorCount / totalCount;
+    }
+
+    public int getTotalSrvCount(String dstIp, NSLKDDConst.service_t service) {
+
+        Iterator<String> iter = srvMap.keySet().iterator();
+
+        int totalCount = 0;
+        while( iter.hasNext() ) {
+            String key = iter.next();
+            if( key.startsWith(dstIp) ) {
+                totalCount = totalCount + srvMap.get(key);
+            }
+        }
+
+        return totalCount;
+    }
+    public int getSameSrvCount(String dstIp, NSLKDDConst.service_t service) {
+        if( srvMap.containsKey(dstIp + "_" + service) ) {
+            return srvMap.get(dstIp + "_" + service);
+        } else {
+            return 0;
+        }
+    }
+    public float getSameSrvRate(String dstIp, int dstPort, int protocol, NSLKDDConst.service_t service) {
+        int totalCount = this.getTotalSrvCount(dstIp, service);
+        int sameSrvCount = this.getSameSrvCount(dstIp, service );
+
+        if( totalCount == 0 )
+            return 0;
+        else
+            return sameSrvCount / totalCount;
+    }
+
+    public float getDiffSrvRate(String dstIp, int dstPort, int protocol, NSLKDDConst.service_t service) {
+        int totalCount = this.getTotalSrvCount(dstIp, service);
+        int sameSrvCount = this.getSameSrvCount(dstIp, service );
+
+        if( totalCount == 0 )
+            return 0;
+        else
+            return (totalCount - sameSrvCount) / totalCount;
+    }
+
+    public float getSrvDiffHostRate(String dstIp, int dstPort, int protocol, NSLKDDConst.service_t service) {
+
+        Iterator<String> iter = srvMap.keySet().iterator();
+
+        int totalCount = 0;
+        int diffHostCount = 0;
+        while( iter.hasNext() ) {
+            String key = iter.next();
+            if( key.indexOf(service+"") > -1) {
+                totalCount = totalCount + srvMap.get(key);
+                if( !key.startsWith(dstIp) ) {
+                    diffHostCount = diffHostCount + srvMap.get(key);
+                }
+            }
+        }
+
+        if( totalCount == 0 )
+            return 0;
+        else
+            return diffHostCount / totalCount;
     }
 }

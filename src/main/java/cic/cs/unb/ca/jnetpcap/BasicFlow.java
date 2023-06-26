@@ -470,7 +470,7 @@ public class BasicFlow {
 	private void updateService(BasicPacketInfo packet) {
 
 		if( packet.getProtocol() == NSLKDDConst.PROTOCOL_TYPE_ICMP )
-			service = NSLKDDUtility.get_service_icmp();
+			service = NSLKDDUtility.get_service_icmp(NSLKDDUtility.getIcmpType(packet.getIcmpType()), packet.getIcmpCode());
 		else if( packet.getProtocol() == NSLKDDConst.PROTOCOL_TYPE_TCP )
 			service = NSLKDDUtility.get_service_tcp(packet.getSrcPort(), packet.getDstPort());
 		else if( packet.getProtocol() == NSLKDDConst.PROTOCOL_TYPE_UDP)
@@ -1285,6 +1285,10 @@ public class BasicFlow {
 		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvSerrorRate(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//26 Srv Serror Rate
 		dump.append(FlowGenerator.timeBasedFeatureStat.getRerrorRate(this.getDstIP(), this.protocol)).append(separator);	//27	Rerror Rate
 		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//28 Srv Rerror Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getSameSrvRate(this.getDstIP(), this.getDstPort(), this.protocol, this.service)).append(separator);	//29	Same Srv Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getDiffSrvRate(this.getDstIP(), this.getDstPort(), this.protocol, this.service)).append(separator);	//30	Diff Srv Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvDiffHostRate(this.getDstIP(), this.getDstPort(), this.protocol, this.service)).append(separator);	//31	Srv Diff Host Rate
+
 
 		String starttime = DateFormatter.convertMilliseconds2String(flowStartTime/1000L, "dd/MM/yyyy hh:mm:ss a");
     	dump.append(starttime).append(separator);									//7

@@ -1,5 +1,6 @@
 package cic.cs.unb.ca.jnetpcap;
 
+import org.jnetpcap.protocol.network.Icmp;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.network.Ip6;
 import org.jnetpcap.protocol.tcpip.Tcp;
@@ -13,6 +14,8 @@ public class Protocol {
 	private Ip4  ipv4;
 	private Ip6  ipv6;
 	private L2TP l2tp;
+
+	private Icmp icmp;
 	public Protocol() {
 		super();
 		tcp = new Tcp();
@@ -20,6 +23,7 @@ public class Protocol {
 		ipv4 = new Ip4();
 		ipv6 = new Ip6();
 		l2tp = new L2TP();
+		icmp = new Icmp();
 	}
 	public Tcp getTcp() {
 		return tcp;
@@ -40,5 +44,6 @@ public class Protocol {
 	public L2TP getL2tp() {
 		return l2tp;
 	}
-	
+
+	public Icmp getIcmp() { return icmp; }
 }
