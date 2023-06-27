@@ -475,7 +475,7 @@ public class BasicFlow {
 			service = NSLKDDUtility.get_service_udp(packet.getSrcPort(), packet.getDstPort());
 		else {
 			service = NSLKDDConst.service_t.SRV_OTHER;
-			logger.error("invalid prototol:" + packet.getProtocol());
+			logger.error("invalid protocol flowId{}" + packet.getProtocol(), this.getFlowId());
 		}
 	}
 
