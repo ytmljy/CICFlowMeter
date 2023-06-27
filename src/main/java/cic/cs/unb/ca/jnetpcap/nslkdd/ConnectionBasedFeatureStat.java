@@ -1,22 +1,35 @@
 package cic.cs.unb.ca.jnetpcap.nslkdd;
 
+import cic.cs.unb.ca.jnetpcap.FlowGenerator;
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class ConnectionBasedFeatureStat implements Runnable{
+    public static final Logger logger = LoggerFactory.getLogger(ConnectionBasedFeatureStat.class);
+    private Map<String, Integer> srvCountMap = null;
+    private int checkConnectionCount = 100;
+    private long monitorPeriod = 1 * 10 * 1000L;
 
-    private ConcurrentHashMap<String, Integer> srvCountMap = new ConcurrentHashMap<>();
-    private long sleepTime = 2 * 1000;
+    public ConnectionBasedFeatureStat(int checkConnectionCount) {
+        this.checkConnectionCount = checkConnectionCount;
 
-    public ConnectionBasedFeatureStat(int sleepTimeSecond) {
-        this.sleepTime = sleepTimeSecond * 1000;
+        srvCountMap = ExpiringMap.builder()
+                .maxSize(this.checkConnectionCount)
+                .expirationPolicy(ExpirationPolicy.CREATED)
+                .expiration(1, TimeUnit.DAYS)
+                .build();
     }
     @Override
     public void run() {
-
-        srvCountMap.clear();
-
         try {
-            Thread.sleep(this.sleepTime);
+            logger.debug("ConnectionBasedFeatureStat-srvCountMap count:" + srvCountMap.size());
+            Thread.sleep(this.monitorPeriod);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -48,8 +61,11 @@ public class ConnectionBasedFeatureStat implements Runnable{
     public int getDstHostCount(String dstIp, int dstPort, int protocol) {
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
-    public int getDstHostSameSrvCount(String dstIp, int dstPort, int protocol) {
+    public int getDstHostSrvCount(String dstIp, int dstPort, int protocol) {
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) &&  key.indexOf("DP="+dstPort) > -1).mapToInt( key -> srvCountMap.get(key)).sum();
+    }
+    public int getDstHostSameSrvCount(String dstIp, int dstPort, int protocol) {
+        return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1 && key.indexOf("DP="+dstPort) >  -1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
     public double getDstHostSameSrvRate(String dstIp, int dstPort, int protocol) {
         int dstHostCount = this.getDstHostCount(dstIp, dstPort, protocol);

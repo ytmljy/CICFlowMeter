@@ -1,251 +1,146 @@
 package cic.cs.unb.ca.jnetpcap.nslkdd;
 
-import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
+import net.jodah.expiringmap.ExpirationPolicy;
+import net.jodah.expiringmap.ExpiringMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class TimeBasedFeatureStat implements Runnable{
+    public static final Logger logger = LoggerFactory.getLogger(TimeBasedFeatureStat.class);
+    private Map<String, Integer> srvCountMap = null;
+    private int checkDuration = 2;
+    private long monitorPeriod = 1 * 10 * 1000L;
 
-    private ConcurrentHashMap<String, Integer> countMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, Integer> srvCountMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, Integer> serrorRateMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, Integer> srvSerrorRateMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, Integer> rerrorRateMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, Integer> srvRerrorRateMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, Integer> srvMap = new ConcurrentHashMap<>();
-    private long sleepTime = 2 * 1000;
+    public TimeBasedFeatureStat(int checkDuration) {
+        this.checkDuration = checkDuration;
 
-    public TimeBasedFeatureStat(int sleepTimeSecond) {
-        this.sleepTime = sleepTimeSecond * 1000;
+        srvCountMap = ExpiringMap.builder()
+                .maxSize(10000)
+                .expirationPolicy(ExpirationPolicy.CREATED)
+                .expiration(this.checkDuration, TimeUnit.SECONDS)
+                .build();
     }
     @Override
     public void run() {
-
-        countMap.clear();
-        srvCountMap.clear();
-        serrorRateMap.clear();
-        srvSerrorRateMap.clear();
-        rerrorRateMap.clear();
-        srvRerrorRateMap.clear();
-        srvMap.clear();
-
         try {
-            Thread.sleep(this.sleepTime);
+            logger.debug("TimeBasedFeatureStat-srvCountMap count:" + srvCountMap.size());
+            Thread.sleep(this.monitorPeriod);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void addConnection(String dstIp, int dstPort, int protocol, NSLKDDConst.service_t service) {
+    private String makeKey(String srdIp, int srcPort, String dstIp, int dstPort, int protocol, NSLKDDConst.conversation_state_t flag) {
+        StringBuffer sb = new StringBuffer();
 
-        if( countMap.containsKey(dstIp + "_" + protocol) ) {
-            int tmpCount = countMap.get(dstIp + "_" + protocol);
-            countMap.put(dstIp + "_" + protocol, tmpCount+1);
-        } else {
-            countMap.put(dstIp + "_" + protocol, 1);
-        }
+        sb.append("P").append("=").append(protocol);
+        sb.append("SI").append("=").append(srdIp);
+        sb.append("SP").append("=").append(srcPort);
+        sb.append("DI").append("=").append(dstIp);
+        sb.append("DP").append("=").append(dstPort);
+        sb.append("F").append("=").append(flag);
 
-        if( srvCountMap.containsKey(dstPort + "_" + protocol) ) {
-            int tmpCount = srvCountMap.get(dstPort + "_" + protocol);
-            srvCountMap.put(dstPort + "_" + protocol, tmpCount+1);
-        } else {
-            srvCountMap.put(dstPort + "_" + protocol, 1);
-        }
-
-        if( srvMap.containsKey(dstIp + "_" + service) ) {
-            int tmpCount = srvMap.get(dstIp + "_" + service);
-            srvMap.put(dstIp + "_" + service, tmpCount+1);
-        } else {
-            srvMap.put(dstIp + "_" + service, 1);
-        }
+        return sb.toString();
     }
 
-    public void addFlag(String dstIp, int dstPort, int protocol, NSLKDDConst.conversation_state_t flag) {
+    public void addConnection(String srcIp, int srcPort, String dstIp, int dstPort, int protocol, NSLKDDConst.conversation_state_t flag ) {
 
-        if( flag == NSLKDDConst.conversation_state_t.S0
-                || flag == NSLKDDConst.conversation_state_t.S1
-                || flag == NSLKDDConst.conversation_state_t.S2
-                || flag == NSLKDDConst.conversation_state_t.S3
-        )  {
-            if( serrorRateMap.containsKey(dstIp + "_" + protocol) ) {
-                int tmpCount = serrorRateMap.get(dstIp + "_" + protocol);
-                serrorRateMap.put(dstIp + "_" + protocol, tmpCount+1);
-            } else {
-                serrorRateMap.put(dstIp + "_" + protocol, 1);
-            }
-
-            if( srvSerrorRateMap.containsKey(dstPort + "_" + protocol) ) {
-                int tmpCount = srvSerrorRateMap.get(dstPort + "_" + protocol);
-                srvSerrorRateMap.put(dstPort + "_" + protocol, tmpCount+1);
-            } else {
-                srvSerrorRateMap.put(dstPort + "_" + protocol, 1);
-            }
-        } else if( flag == NSLKDDConst.conversation_state_t.REJ ) {
-            if( rerrorRateMap.containsKey(dstIp + "_" + protocol) ) {
-                int tmpCount = rerrorRateMap.get(dstIp + "_" + protocol);
-                rerrorRateMap.put(dstIp + "_" + protocol, tmpCount+1);
-            } else {
-                rerrorRateMap.put(dstIp + "_" + protocol, 1);
-            }
-
-            if( srvRerrorRateMap.containsKey(dstPort + "_" + protocol) ) {
-                int tmpCount = srvRerrorRateMap.get(dstPort + "_" + protocol);
-                srvRerrorRateMap.put(dstPort + "_" + protocol, tmpCount+1);
-            } else {
-                srvRerrorRateMap.put(dstPort + "_" + protocol, 1);
-            }
+        String key = makeKey(srcIp, srcPort, dstIp, dstPort, protocol, flag);
+        if( srvCountMap.containsKey(key) ) {
+            int tmpCount = srvCountMap.get(key);
+            srvCountMap.put(key, tmpCount+1);
         } else {
-
+            srvCountMap.put(key, 1);
         }
     }
-
-    public int getCount(String dstIp, int protocol) {
-        if( countMap.containsKey(dstIp + "_" + protocol) ) {
-            return  countMap.get(dstIp + "_" + protocol);
-        } else {
-            return 0;
-        }
+    public int getCount(String dstIp, int dstPort, int protocol) {
+        return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
-
     public int getSrvCount(String dstIp, int dstPort, int protocol) {
-        if( srvCountMap.containsKey(dstIp + "_" + dstPort + "_" + protocol) ) {
-            return srvCountMap.get(dstIp + "_" + dstPort + "_" + protocol);
-        } else {
-            return 0;
-        }
+        return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) &&  key.indexOf("DP="+dstPort) > -1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
-
-    public int getSerrorCount(String dstIp, int protocol) {
-        if( serrorRateMap.containsKey(dstIp + "_" + protocol) ) {
-            return  serrorRateMap.get(dstIp + "_" + protocol);
-        } else {
-            return 0;
-        }
+    public int getSameSrvCount(String dstIp, int dstPort, int protocol) {
+        return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1 && key.indexOf("DP="+dstPort) >  -1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
+    public double getSameSrvRate(String dstIp, int dstPort, int protocol) {
+        int dstHostCount = this.getCount(dstIp, dstPort, protocol);
+        int dstHostSrvCount = this.getSameSrvCount(dstIp, dstPort, protocol);
 
-    public int getSrvSerrorCount(String dstIp, int dstPort, int protocol) {
-        if( srvSerrorRateMap.containsKey(dstPort + "_" + protocol) ) {
-            return srvSerrorRateMap.get(dstPort + "_" + protocol);
-        } else {
-            return 0;
-        }
+        return dstHostCount == 0 ? 0 : dstHostCount < dstHostSrvCount ? 1 : (dstHostSrvCount / dstHostCount);
     }
-
-    public float getSerrorRate(String dstIp, int protocol) {
-        int totalCount = this.getCount(dstIp, protocol );
-        int serrorCount = this.getSerrorCount(dstIp, protocol );
-
-        if( totalCount == 0 )
-            return 0;
-        else
-            return serrorCount / totalCount;
+    public int getDiffSrvCount(String dstIp, int dstPort, int protocol) {
+        return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1 && key.indexOf("DP="+dstPort)==-1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
+    public double getDiffSrvRate(String dstIp, int dstPort, int protocol) {
+        int dstHostCount = this.getCount(dstIp, dstPort, protocol);
+        int dstHostDiffSrvCount = this.getDiffSrvCount(dstIp, dstPort, protocol);
 
-    public float getSrvSerrorRate(String dstIp, int dstPort, int protocol) {
-        int totalCount = this.getSrvCount(dstIp, dstPort, protocol );
-        int serrorCount = this.getSrvSerrorCount(dstIp, dstPort,  protocol );
-
-        if( totalCount == 0 )
-            return 0;
-        else
-            return serrorCount / totalCount;
+        return dstHostCount == 0 ? 0 : dstHostCount < dstHostDiffSrvCount ? 1 : (dstHostDiffSrvCount / dstHostCount);
     }
-
-    public int getRerrorCount(String dstIp, int protocol) {
-        if( rerrorRateMap.containsKey(dstIp + "_" + protocol) ) {
-            return rerrorRateMap.get(dstIp + "_" + protocol);
-        } else {
-            return 0;
-        }
+    public int getSrvDiffHostCount(String dstIp, int dstPort, String srcIp, int srcPort, int protocol) {
+        return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) &&  key.indexOf("DP="+dstPort) > -1 && key.indexOf("DI="+dstIp)==-1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
+    public double getSrvDiffHostRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol) {
+        int dstHostSameSrvCount = this.getSrvCount(dstIp, dstPort, protocol);
+        int dstHostSrvDiffHostCount = this.getSrvDiffHostCount(dstIp, dstPort, srcIp, srcPort, protocol);
 
-    public int getSrvRerrorCount(String dstIp, int dstPort, int protocol) {
-        if( srvRerrorRateMap.containsKey(dstPort + "_" + protocol) ) {
-            return srvRerrorRateMap.get(dstPort + "_" + protocol);
-        } else {
-            return 0;
-        }
+        return dstHostSameSrvCount == 0 ? 0 : dstHostSameSrvCount < dstHostSrvDiffHostCount ? 1 : (dstHostSrvDiffHostCount / dstHostSameSrvCount);
     }
-
-    public float getRerrorRate(String dstIp, int protocol) {
-        int totalCount = this.getCount(dstIp, protocol );
-        int rerrorCount = this.getRerrorCount(dstIp, protocol );
-
-        if( totalCount == 0 )
-            return 0;
-        else
-            return rerrorCount / totalCount;
+    //38	Dst Host Serror Rate
+    public int getSerrorCount(String dstIp, int protocol, NSLKDDConst.conversation_state_t flag)  {
+        return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1 && (
+                        key.indexOf("F="+NSLKDDConst.conversation_state_t.S0) > -1
+                        || key.indexOf("F="+NSLKDDConst.conversation_state_t.S1) > -1
+                        || key.indexOf("F="+NSLKDDConst.conversation_state_t.S2) > -1
+                        || key.indexOf("F="+NSLKDDConst.conversation_state_t.S3) > -1
+        )).mapToInt( key -> srvCountMap.get(key)).sum();
     }
+    public double getSerrorRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol, NSLKDDConst.conversation_state_t flag) {
+        int dstHostCount = this.getCount(dstIp, dstPort, protocol);
+        int dstHostSerrorCount = this.getSerrorCount(dstIp, protocol, flag);
 
-    public float getSrvRerrorRate(String dstIp, int dstPort, int protocol) {
-        int totalCount = this.getSrvCount(dstIp, dstPort, protocol );
-        int rerrorCount = this.getSrvRerrorCount(dstIp, dstPort,  protocol );
-
-        if( totalCount == 0 )
-            return 0;
-        else
-            return rerrorCount / totalCount;
+        return dstHostCount == 0 ? 0 : dstHostCount < dstHostSerrorCount ? 1 : (dstHostSerrorCount / dstHostCount);
     }
-
-    public int getTotalSrvCount(String dstIp, NSLKDDConst.service_t service) {
-
-        Iterator<String> iter = srvMap.keySet().iterator();
-
-        int totalCount = 0;
-        while( iter.hasNext() ) {
-            String key = iter.next();
-            if( key.startsWith(dstIp) ) {
-                totalCount = totalCount + srvMap.get(key);
-            }
-        }
-
-        return totalCount;
+    //39	Dst Host Srv Serror Rate
+    public int getSrvSerrorCount(int dstPort, int protocol, NSLKDDConst.conversation_state_t flag)  {
+        return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) &&  key.indexOf("DP="+dstPort) > -1 && (
+                key.indexOf("F="+NSLKDDConst.conversation_state_t.S0) > -1
+                        || key.indexOf("F="+NSLKDDConst.conversation_state_t.S1) > -1
+                        || key.indexOf("F="+NSLKDDConst.conversation_state_t.S2) > -1
+                        || key.indexOf("F="+NSLKDDConst.conversation_state_t.S3) > -1
+        )).mapToInt( key -> srvCountMap.get(key)).sum();
     }
-    public int getSameSrvCount(String dstIp, NSLKDDConst.service_t service) {
-        if( srvMap.containsKey(dstIp + "_" + service) ) {
-            return srvMap.get(dstIp + "_" + service);
-        } else {
-            return 0;
-        }
+    public double getSrvSerrorRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol, NSLKDDConst.conversation_state_t flag) {
+        int dstHostSameSrvCount = this.getSrvCount(dstIp, dstPort, protocol);
+        int dstHostSrvSerrorCount = this.getSrvSerrorCount(dstPort, protocol, flag);
+
+        return dstHostSameSrvCount == 0 ? 0 : dstHostSameSrvCount < dstHostSrvSerrorCount ? 1 : (dstHostSrvSerrorCount / dstHostSameSrvCount);
     }
-    public float getSameSrvRate(String dstIp, int dstPort, int protocol, NSLKDDConst.service_t service) {
-        int totalCount = this.getTotalSrvCount(dstIp, service);
-        int sameSrvCount = this.getSameSrvCount(dstIp, service );
-
-        if( totalCount == 0 )
-            return 0;
-        else
-            return sameSrvCount / totalCount;
+    //40	Dst Host Rerror Rate
+    public int getRerrorCount(String dstIp, int protocol, NSLKDDConst.conversation_state_t flag)  {
+        return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1 && (
+                key.indexOf("F="+NSLKDDConst.conversation_state_t.REJ) > -1
+        )).mapToInt( key -> srvCountMap.get(key)).sum();
     }
+    public double getRerrorRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol, NSLKDDConst.conversation_state_t flag) {
+        int dstHostCount = this.getCount(dstIp, dstPort, protocol);
+        int dstHostRerrorCount = this.getRerrorCount(dstIp, protocol, flag);
 
-    public float getDiffSrvRate(String dstIp, int dstPort, int protocol, NSLKDDConst.service_t service) {
-        int totalCount = this.getTotalSrvCount(dstIp, service);
-        int sameSrvCount = this.getSameSrvCount(dstIp, service );
-
-        if( totalCount == 0 )
-            return 0;
-        else
-            return (totalCount - sameSrvCount) / totalCount;
+        return dstHostCount == 0 ? 0 : dstHostCount < dstHostRerrorCount ? 1 : (dstHostRerrorCount / dstHostCount);
     }
+    //41	Dst Host Srv Rerror Rate
+    public int getSrvRerrorCount(int dstPort, int protocol, NSLKDDConst.conversation_state_t flag)  {
+        return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) &&  key.indexOf("DP="+dstPort) > -1 && (
+                key.indexOf("F="+NSLKDDConst.conversation_state_t.REJ) > -1
+        )).mapToInt( key -> srvCountMap.get(key)).sum();
+    }
+    public double getSrvRerrorRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol, NSLKDDConst.conversation_state_t flag) {
+        int dstHostSameSrvCount = this.getSrvCount(dstIp, dstPort, protocol);
+        int dstHostSrvRerrorCount = this.getSrvRerrorCount(dstPort, protocol, flag);
 
-    public float getSrvDiffHostRate(String dstIp, int dstPort, int protocol, NSLKDDConst.service_t service) {
-
-        Iterator<String> iter = srvMap.keySet().iterator();
-
-        int totalCount = 0;
-        int diffHostCount = 0;
-        while( iter.hasNext() ) {
-            String key = iter.next();
-            if( key.indexOf(service+"") > -1) {
-                totalCount = totalCount + srvMap.get(key);
-                if( !key.startsWith(dstIp) ) {
-                    diffHostCount = diffHostCount + srvMap.get(key);
-                }
-            }
-        }
-
-        if( totalCount == 0 )
-            return 0;
-        else
-            return diffHostCount / totalCount;
+        return dstHostSameSrvCount == 0 ? 0 : dstHostSameSrvCount < dstHostSrvRerrorCount ? 1 : (dstHostSrvRerrorCount / dstHostSameSrvCount);
     }
 }

@@ -2,6 +2,7 @@ package cic.cs.unb.ca.jnetpcap;
 
 import cic.cs.unb.ca.jnetpcap.nslkdd.ConnectionBasedFeatureStat;
 import cic.cs.unb.ca.jnetpcap.nslkdd.TimeBasedFeatureStat;
+import cic.cs.unb.ca.jnetpcap.nslkdd.TimeBasedFeatureStatBak;
 import cic.cs.unb.ca.jnetpcap.worker.FlowGenListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class FlowGenerator {
 	private int     finishedFlowCount;
 
 	public static TimeBasedFeatureStat timeBasedFeatureStat;
-	public static ConnectionBasedFeatureStat hostBasedFeatureStat;
+	public static ConnectionBasedFeatureStat connectionBasedFeatureStat;
 	
 	public FlowGenerator(boolean bidirectional, long flowTimeout, long activityTimeout) {
 		super();
@@ -73,8 +74,8 @@ public class FlowGenerator {
 		Thread timeBasedFeatureThread = new Thread(timeBasedFeatureStat);
 		timeBasedFeatureThread.start();
 
-		hostBasedFeatureStat = new ConnectionBasedFeatureStat(2);
-		Thread hostBasedFeatureThread = new Thread(hostBasedFeatureStat);
+		connectionBasedFeatureStat = new ConnectionBasedFeatureStat(100);
+		Thread hostBasedFeatureThread = new Thread(connectionBasedFeatureStat);
 		hostBasedFeatureThread.start();
 	}
 

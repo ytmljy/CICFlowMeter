@@ -188,8 +188,8 @@ public class BasicFlow {
 			urgent_packets++;
 
 		//NSL-KDD TimeBaseFeature
-		FlowGenerator.timeBasedFeatureStat.addConnection(packet.getDestinationIP(), packet.getDstPort(), packet.getProtocol(), this.service);
-		FlowGenerator.timeBasedFeatureStat.addFlag(this.getDstIP(), this.getDstPort(), this.protocol, this.flag);
+		FlowGenerator.timeBasedFeatureStat.addConnection(packet.getDestinationIP(), packet.getDstPort(), packet.getSourceIP(), packet.getSrcPort(), packet.getProtocol(), this.flag);
+		FlowGenerator.connectionBasedFeatureStat.addConnection(packet.getDestinationIP(), packet.getDstPort(), packet.getSourceIP(), packet.getSrcPort(), packet.getProtocol(), this.flag);
 	}
     
     public void addPacket(BasicPacketInfo packet){
@@ -244,8 +244,6 @@ public class BasicFlow {
 
 		if( packet.hasFlagURG() )
 			urgent_packets++;
-
-		FlowGenerator.timeBasedFeatureStat.addFlag(this.getDstIP(), this.getDstPort(), this.protocol, this.flag);
     }
 
 	public double getfPktsPerSecond(){
@@ -1279,186 +1277,28 @@ public class BasicFlow {
 		dump.append(0).append(separator);         								//22 Hot
 
 		//Time-Based Features (Total: 9)
-		dump.append(FlowGenerator.timeBasedFeatureStat.getCount(this.getDstIP(), this.protocol)).append(separator);	//23 Count
+		dump.append(FlowGenerator.timeBasedFeatureStat.getCount(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//23 Count
 		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvCount(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//24 Srv Count
-		dump.append(FlowGenerator.timeBasedFeatureStat.getSerrorRate(this.getDstIP(), this.protocol)).append(separator);	//25 Serror Rate
-		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvSerrorRate(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//26 Srv Serror Rate
-		dump.append(FlowGenerator.timeBasedFeatureStat.getRerrorRate(this.getDstIP(), this.protocol)).append(separator);	//27	Rerror Rate
-		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//28 Srv Rerror Rate
-		dump.append(FlowGenerator.timeBasedFeatureStat.getSameSrvRate(this.getDstIP(), this.getDstPort(), this.protocol, this.service)).append(separator);	//29	Same Srv Rate
-		dump.append(FlowGenerator.timeBasedFeatureStat.getDiffSrvRate(this.getDstIP(), this.getDstPort(), this.protocol, this.service)).append(separator);	//30	Diff Srv Rate
-		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvDiffHostRate(this.getDstIP(), this.getDstPort(), this.protocol, this.service)).append(separator);	//31	Srv Diff Host Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol, this.flag)).append(separator);	//25 Serror Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol, this.flag)).append(separator);	//26 Srv Serror Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol, this.flag)).append(separator);	//27	Rerror Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol, this.flag)).append(separator);	//28 Srv Rerror Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getSameSrvRate(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//29	Same Srv Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getDiffSrvRate(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//30	Diff Srv Rate
+		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvDiffHostRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol)).append(separator);	//31	Srv Diff Host Rate
 
 		//Host-Based Features (Total: 10)
-		dump.append(FlowGenerator.hostBasedFeatureStat.getDstHostCount(this.getDstIP(), this.getDstPort(), this.getProtocol())).append(separator);		//32	Dst Host Count
-		dump.append(FlowGenerator.hostBasedFeatureStat.getDstHostSameSrvCount(this.getDstIP(), this.getDstPort(), this.getProtocol())).append(separator);	//33	Dst Host Srv Count
-		dump.append(String.format("%.2f",FlowGenerator.hostBasedFeatureStat.getDstHostSameSrvRate(this.getDstIP(), this.getDstPort(), this.getProtocol()))).append(separator);	//34	Dst Host Same Srv Rate
-		dump.append(String.format("%.2f",FlowGenerator.hostBasedFeatureStat.getDstHostDiffSrvRate(this.getDstIP(), this.getDstPort(), this.getProtocol()))).append(separator);	//35	Dst Host Diff Srv Rate
-		dump.append(String.format("%.2f",FlowGenerator.hostBasedFeatureStat.getDstHostSameSrcPortRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol()))).append(separator);//36	Dst Host Same Src Port Rate
-		dump.append(String.format("%.2f",FlowGenerator.hostBasedFeatureStat.getDstHostSrvDiffHostRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol()))).append(separator);//37	Dst Host Srv Diff Host Rate
-		dump.append(String.format("%.2f",FlowGenerator.hostBasedFeatureStat.getDstHostSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//38	Dst Host Serror Rate
-		dump.append(String.format("%.2f",FlowGenerator.hostBasedFeatureStat.getDstHostSrvSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//39	Dst Host Srv Serror Rate
-		dump.append(String.format("%.2f",FlowGenerator.hostBasedFeatureStat.getDstHostRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//40	Dst Host Rerror Rate
-		dump.append(String.format("%.2f",FlowGenerator.hostBasedFeatureStat.getDstHostSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);41	Dst Host Srv Rerror Rate
+		dump.append(FlowGenerator.connectionBasedFeatureStat.getDstHostCount(this.getDstIP(), this.getDstPort(), this.getProtocol())).append(separator);		//32	Dst Host Count
+		dump.append(FlowGenerator.connectionBasedFeatureStat.getDstHostSrvCount(this.getDstIP(), this.getDstPort(), this.getProtocol())).append(separator);	//33	Dst Host Srv Count
+		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSameSrvRate(this.getDstIP(), this.getDstPort(), this.getProtocol()))).append(separator);	//34	Dst Host Same Srv Rate
+		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostDiffSrvRate(this.getDstIP(), this.getDstPort(), this.getProtocol()))).append(separator);	//35	Dst Host Diff Srv Rate
+		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSameSrcPortRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol()))).append(separator);//36	Dst Host Same Src Port Rate
+		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvDiffHostRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol()))).append(separator);//37	Dst Host Srv Diff Host Rate
+		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//38	Dst Host Serror Rate
+		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//39	Dst Host Srv Serror Rate
+		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//40	Dst Host Rerror Rate
+		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//41	Dst Host Srv Rerror Rate
 
-		String starttime = DateFormatter.convertMilliseconds2String(flowStartTime/1000L, "dd/MM/yyyy hh:mm:ss a");
-    	dump.append(starttime).append(separator);									//7
-    	
-
-    	dump.append(fwdPktStats.getN()).append(separator);							//9
-    	dump.append(bwdPktStats.getN()).append(separator);							//10	
-    	dump.append(fwdPktStats.getSum()).append(separator);						//11
-    	dump.append(bwdPktStats.getSum()).append(separator);						//12
-    	
-    	if(fwdPktStats.getN() > 0L) {
-    		dump.append(fwdPktStats.getMax()).append(separator);					//13
-    		dump.append(fwdPktStats.getMin()).append(separator);					//14
-    		dump.append(fwdPktStats.getMean()).append(separator);					//15
-    		dump.append(fwdPktStats.getStandardDeviation()).append(separator);		//16
-    	}else {
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    	}
-    	
-    	if(bwdPktStats.getN() > 0L) {
-    		dump.append(bwdPktStats.getMax()).append(separator);					//17
-    		dump.append(bwdPktStats.getMin()).append(separator);					//18
-    		dump.append(bwdPktStats.getMean()).append(separator);					//19
-    		dump.append(bwdPktStats.getStandardDeviation()).append(separator);		//20
-		}else{
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-		}
-    	dump.append(((double)(forwardBytes+backwardBytes))/((double)flowDuration/1000000L)).append(separator);//21
-    	dump.append(((double)packetCount())/((double)flowDuration/1000000L)).append(separator);//22
-    	dump.append(flowIAT.getMean()).append(separator);							//23
-    	dump.append(flowIAT.getStandardDeviation()).append(separator);				//24
-    	dump.append(flowIAT.getMax()).append(separator);							//25
-    	dump.append(flowIAT.getMin()).append(separator);							//26
-    	
-    	if(this.forward.size()>1){
-        	dump.append(forwardIAT.getSum()).append(separator);						//27
-        	dump.append(forwardIAT.getMean()).append(separator);					//28
-        	dump.append(forwardIAT.getStandardDeviation()).append(separator);		//29	
-        	dump.append(forwardIAT.getMax()).append(separator);						//30
-        	dump.append(forwardIAT.getMin()).append(separator);						//31
-        	
-    	}else{
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    	}
-    	if(this.backward.size()>1){
-        	dump.append(backwardIAT.getSum()).append(separator);					//32
-        	dump.append(backwardIAT.getMean()).append(separator);					//33
-        	dump.append(backwardIAT.getStandardDeviation()).append(separator);		//34	
-        	dump.append(backwardIAT.getMax()).append(separator);					//35
-        	dump.append(backwardIAT.getMin()).append(separator);					//36
-    	}else{
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    	}
-    	
-		dump.append(fPSH_cnt).append(separator);									//37
-		dump.append(bPSH_cnt).append(separator);									//38
-		dump.append(fURG_cnt).append(separator);									//39
-		dump.append(bURG_cnt).append(separator);									//40
-
-		dump.append(fHeaderBytes).append(separator);								//41
-		dump.append(bHeaderBytes).append(separator);								//42
-		dump.append(getfPktsPerSecond()).append(separator);							//43
-		dump.append(getbPktsPerSecond()).append(separator);							//44
-		
-		
-		if(this.forward.size() > 0 || this.backward.size() > 0){
-			dump.append(flowLengthStats.getMin()).append(separator);				//45
-			dump.append(flowLengthStats.getMax()).append(separator);				//46
-			dump.append(flowLengthStats.getMean()).append(separator);				//47
-			dump.append(flowLengthStats.getStandardDeviation()).append(separator);	//48
-			dump.append(flowLengthStats.getVariance()).append(separator);			//49
-		}else{//seem to less one
-			dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-		}
-		
-		/*for(MutableInt v:flagCounts.values()) {
-			dump.append(v).append(separator);
-		}
-		for(String key: flagCounts.keySet()){
-			dump.append(flagCounts.get(key).value).append(separator);				//50,51,52,53,54,55,56,57
-		} */
-		dump.append(flagCounts.get("FIN").value).append(separator);                 //50
-		dump.append(flagCounts.get("SYN").value).append(separator);                 //51
-		dump.append(flagCounts.get("RST").value).append(separator);                  //52
-		dump.append(flagCounts.get("PSH").value).append(separator);                  //53
-		dump.append(flagCounts.get("ACK").value).append(separator);                  //54
-		dump.append(flagCounts.get("URG").value).append(separator);                  //55
-		dump.append(flagCounts.get("CWR").value).append(separator);                  //56
-		dump.append(flagCounts.get("ECE").value).append(separator);                  //57
-		
-		dump.append(getDownUpRatio()).append(separator);							//58
-		dump.append(getAvgPacketSize()).append(separator);							//59
-		dump.append(fAvgSegmentSize()).append(separator);							//60
-		dump.append(bAvgSegmentSize()).append(separator);							//61
-		//dump.append(fHeaderBytes).append(separator);								//62 dupicate with 41
-		
-		dump.append(fAvgBytesPerBulk()).append(separator);							//63	
-		dump.append(fAvgPacketsPerBulk()).append(separator);						//64
-		dump.append(fAvgBulkRate()).append(separator);								//65
-		dump.append(bAvgBytesPerBulk()).append(separator);							//66
-		dump.append(bAvgPacketsPerBulk()).append(separator);						//67
-		dump.append(bAvgBulkRate()).append(separator);								//68
-    	
-		dump.append(getSflow_fpackets()).append(separator);							//69
-		dump.append(getSflow_fbytes()).append(separator);							//70
-		dump.append(getSflow_bpackets()).append(separator);							//71
-		dump.append(getSflow_bbytes()).append(separator);							//72
-			
-    	dump.append(Init_Win_bytes_forward).append(separator);						//73
-    	dump.append(Init_Win_bytes_backward).append(separator);						//74
-    	dump.append(Act_data_pkt_forward).append(separator);						//75
-    	dump.append(min_seg_size_forward).append(separator);						//76
-    	
-    	
-    	if(this.flowActive.getN()>0){
-        	dump.append(flowActive.getMean()).append(separator);					//77
-        	dump.append(flowActive.getStandardDeviation()).append(separator);		//78
-        	dump.append(flowActive.getMax()).append(separator);						//79
-        	dump.append(flowActive.getMin()).append(separator);						//80
-    	}else{
-			dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    	}    	
-    	
-    	if(this.flowIdle.getN()>0){
-	    	dump.append(flowIdle.getMean()).append(separator);						//81
-	    	dump.append(flowIdle.getStandardDeviation()).append(separator);			//82
-	    	dump.append(flowIdle.getMax()).append(separator);						//83
-	    	dump.append(flowIdle.getMin()).append(separator);						//84	
-    	}else{
-			dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    		dump.append(0).append(separator);
-    	}
-
-        dump.append(getLabel());
-
-    	
     	return dump.toString();
     }
 
