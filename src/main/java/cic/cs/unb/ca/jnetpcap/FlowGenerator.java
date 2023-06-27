@@ -1,5 +1,8 @@
 package cic.cs.unb.ca.jnetpcap;
 
+import cic.cs.unb.ca.jnetpcap.nslkdd.ConnectionBasedFeatureStat;
+import cic.cs.unb.ca.jnetpcap.nslkdd.TimeBasedFeatureStat;
+import cic.cs.unb.ca.jnetpcap.nslkdd.TimeBasedFeatureStatBak;
 import cic.cs.unb.ca.jnetpcap.worker.FlowGenListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +52,9 @@ public class FlowGenerator {
 	private long    flowTimeOut;
 	private long    flowActivityTimeOut;
 	private int     finishedFlowCount;
+
+	public static TimeBasedFeatureStat timeBasedFeatureStat;
+	public static ConnectionBasedFeatureStat connectionBasedFeatureStat;
 	
 	public FlowGenerator(boolean bidirectional, long flowTimeout, long activityTimeout) {
 		super();
@@ -62,7 +68,15 @@ public class FlowGenerator {
 		currentFlows = new HashMap<>();
 		finishedFlows = new HashMap<>();
 		IPAddresses = new HashMap<>();
-		finishedFlowCount = 0;		
+		finishedFlowCount = 0;
+
+		timeBasedFeatureStat = new TimeBasedFeatureStat(2);
+		Thread timeBasedFeatureThread = new Thread(timeBasedFeatureStat);
+		timeBasedFeatureThread.start();
+
+		connectionBasedFeatureStat = new ConnectionBasedFeatureStat(100);
+		Thread hostBasedFeatureThread = new Thread(connectionBasedFeatureStat);
+		hostBasedFeatureThread.start();
 	}
 
 	public void addFlowListener(FlowGenListener listener) {
@@ -76,28 +90,28 @@ public class FlowGenerator {
         
     	BasicFlow   flow;
     	long        currentTimestamp = packet.getTimeStamp();
-		    String id;
+		String id;
 
-    	if(this.currentFlows.containsKey(packet.fwdFlowId())||this.currentFlows.containsKey(packet.bwdFlowId())){
+    	if( this.currentFlows.containsKey(packet.fwdFlowId()) || this.currentFlows.containsKey(packet.bwdFlowId()) ) {
 	
-	if(this.currentFlows.containsKey(packet.fwdFlowId())) 
-		{id = packet.fwdFlowId();}
-    		else {
-		id = packet.bwdFlowId();}
+			if(this.currentFlows.containsKey(packet.fwdFlowId())) {
+				id = packet.fwdFlowId();
+			} else {
+				id = packet.bwdFlowId();
+			}
 
     		flow = currentFlows.get(id);
     		// Flow finished due flowtimeout: 
     		// 1.- we move the flow to finished flow list
     		// 2.- we eliminate the flow from the current flow list
     		// 3.- we create a new flow with the packet-in-process
-    		if((currentTimestamp -flow.getFlowStartTime())>flowTimeOut){
+    		if( (currentTimestamp -flow.getFlowStartTime()) > flowTimeOut ) {
     			if(flow.packetCount()>1){
 					if (mListener != null) {
 						mListener.onFlowGenerated(flow);
-					    }
-					else{
-                                                finishedFlows.put(getFlowCount(), flow);
-                                            }
+					} else {
+						finishedFlows.put(getFlowCount(), flow);
+					}
                     //flow.endActiveIdleTime(currentTimestamp,this.flowActivityTimeOut, this.flowTimeOut, false);
     			}
     			currentFlows.remove(id);    			
@@ -121,7 +135,7 @@ public class FlowGenerator {
 //                    finishedFlows.put(getFlowCount(), flow);
 //                }
 //                currentFlows.remove(id);
-    		}else if(packet.hasFlagFIN()){
+    		} else if(packet.hasFlagFIN()) {
     			//
     			// Forward Flow
     			//
@@ -189,7 +203,7 @@ public class FlowGenerator {
     		// 1.- we add the packet-in-process to the flow (it is the last packet)
         	// 2.- we move the flow to finished flow list
         	// 3.- we eliminate the flow from the current flow list                
-    		}else if(packet.hasFlagRST()){
+    		} else if(packet.hasFlagRST()) {
     			logger.debug("FlagRST current has {} flow",currentFlows.size());
     			flow.addPacket(packet);
                 if (mListener != null) {
@@ -198,7 +212,7 @@ public class FlowGenerator {
                     finishedFlows.put(getFlowCount(), flow);
                 }
                 currentFlows.remove(id);    			
-    		}else{
+    		} else {
     			//
     			// Forward Flow and fwdFIN = 0
     			//
@@ -224,6 +238,7 @@ public class FlowGenerator {
     	}else{
 			currentFlows.put(packet.fwdFlowId(), new BasicFlow(bidirectional,packet, this.flowActivityTimeOut));
     	}
+
     }
 
     /*public void dumpFlowBasedFeatures(String path, String filename,String header){
@@ -279,7 +294,7 @@ public class FlowGenerator {
             logger.debug("dumpLabeledFlow finishedFlows -> {},{}",zeroPkt,total);
 
             Set<String> ckeys = currentFlows.keySet();
-		output.write((header + "\n").getBytes());
+			output.write((header + "\n").getBytes());
 			for(String key:ckeys){
 	    		flow = currentFlows.get(key);
 	    		if(flow.packetCount()>1) {

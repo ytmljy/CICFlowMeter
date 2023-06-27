@@ -286,7 +286,7 @@ public class FlowMonitorPane extends JPanel {
                             lblStatus.validate();
 
                         } catch (InterruptedException | ExecutionException e) {
-                            logger.debug(e.getMessage());
+                            logger.debug(e.getMessage(), e);
                         }
                         break;
                 }

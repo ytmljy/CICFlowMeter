@@ -9,6 +9,7 @@ import org.jnetpcap.packet.JHeader;
 import org.jnetpcap.packet.JHeaderPool;
 import org.jnetpcap.packet.PcapPacket;
 import org.jnetpcap.protocol.lan.Ethernet;
+import org.jnetpcap.protocol.network.Icmp;
 import org.jnetpcap.protocol.network.Ip4;
 import org.jnetpcap.protocol.network.Ip6;
 import org.jnetpcap.protocol.tcpip.Tcp;
@@ -28,6 +29,7 @@ public class PacketReader {
 	
 	private Tcp  tcp;
 	private Udp  udp;
+	private Icmp icmp;
 	private Ip4  ipv4;
 	private Ip6  ipv6;
 	private L2TP l2tp;
@@ -39,9 +41,9 @@ public class PacketReader {
 	private String file;
 	
 	public PacketReader(String filename) {
-		super();	
+		super();
 		this.readIP4 = true;
-		this.readIP6 = false;		
+		this.readIP6 = false;
 		this.config(filename);
 	}
 	
@@ -69,6 +71,7 @@ public class PacketReader {
 			this.ipv4 = new Ip4();
 			this.ipv6 = new Ip6();
 			this.l2tp = new L2TP();
+			this.icmp = new Icmp();
 			hdr = new PcapHeader(JMemory.POINTER);
 			buf = new JBuffer(JMemory.POINTER);		
 		}		
@@ -146,6 +149,9 @@ public class PacketReader {
 					packetInfo.setPayloadBytes(udp.getPayloadLength());
 					packetInfo.setHeaderBytes(udp.getHeaderLength());
 					packetInfo.setProtocol(17);			
+				}else if(packet.hasHeader(this.icmp)){
+					packetInfo.setIcmpCode(icmp.code());
+					packetInfo.setIcmpType(icmp.type());
 				}else {
 					/*logger.debug("other packet Ethernet -> {}"+  packet.hasHeader(new Ethernet()));
 					logger.debug("other packet Html     -> {}"+  packet.hasHeader(new Html()));
@@ -202,7 +208,10 @@ public class PacketReader {
 					packetInfo.setPayloadBytes(udp.getPayloadLength());
 					packetInfo.setHeaderBytes(tcp.getHeaderLength());
 					packetInfo.setProtocol(17);								
-				}		
+				}else if(packet.hasHeader(this.icmp)){
+					packetInfo.setIcmpCode(icmp.code());
+					packetInfo.setIcmpType(icmp.type());
+				}
 			}
 		}catch(Exception e){
 			logger.debug(e.getMessage());
@@ -372,7 +381,10 @@ public class PacketReader {
 					packetInfo.setPayloadBytes(protocol.getUdp().getPayloadLength());
 					packetInfo.setHeaderBytes(protocol.getUdp().getHeaderLength());
 					packetInfo.setProtocol(17);								
-				}		
+				} else if(packet.hasHeader(protocol.getIcmp())){
+					packetInfo.setIcmpCode(protocol.getIcmp().code());
+					packetInfo.setIcmpType(protocol.getIcmp().type());
+				}
 			}
 		}catch(Exception e){
 			/*
@@ -424,16 +436,20 @@ public class PacketReader {
 					packetInfo.setFlagRST(protocol.getTcp().flags_RST());
 					packetInfo.setPayloadBytes(protocol.getTcp().getPayloadLength());
 					packetInfo.setHeaderBytes(protocol.getTcp().getHeaderLength());
-				}else if(packet.hasHeader(protocol.getUdp())){
+				}else if(packet.hasHeader(protocol.getUdp())) {
 					packetInfo.setSrcPort(protocol.getUdp().source());
 					packetInfo.setDstPort(protocol.getUdp().destination());
 					packetInfo.setPayloadBytes(protocol.getUdp().getPayloadLength());
 					packetInfo.setHeaderBytes(protocol.getUdp().getHeaderLength());
-					packetInfo.setProtocol(17);			
+					packetInfo.setProtocol(17);
+				}else if(packet.hasHeader(protocol.getIcmp())){
+					packetInfo.setIcmpCode(protocol.getIcmp().code());
+					packetInfo.setIcmpType(protocol.getIcmp().type());
 				} else {
 					int headerCount = packet.getHeaderCount();
 					for(int i=0;i<headerCount;i++) {
 						JHeader header = JHeaderPool.getDefault().getHeader(i);
+
 						//JHeader hh = packet.getHeaderByIndex(i, header);
 						//logger.debug("getIpv4Info: {} --description: {} ",header.getName(),header.getDescription());
 					}

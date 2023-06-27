@@ -28,6 +28,8 @@ public class BasicPacketInfo {
 	private	   int TCPWindow=0;
 	private	   long headerBytes;
 	private int payloadPacket=0;
+	private int icmpCode=0;
+	private int icmpType=0;
 
 	public BasicPacketInfo(byte[] src, byte[] dst, int srcPort, int dstPort,
 			int protocol, long timeStamp, IdGenerator generator) {
@@ -253,4 +255,12 @@ public class BasicPacketInfo {
 	public void setTCPWindow(int TCPWindow){
 		this.TCPWindow = TCPWindow;
 	}
+
+	public int getIcmpCode() {return icmpCode;}
+
+	public void setIcmpCode(int icmpCode) {	this.icmpCode = icmpCode;}
+
+	public int getIcmpType() {return icmpType;}
+
+	public void setIcmpType(int icmpType) {this.icmpType = icmpType;}
 }
