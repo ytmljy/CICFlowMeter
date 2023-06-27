@@ -1249,67 +1249,73 @@ public class BasicFlow {
     }
 	
     public String dumpFlowBasedFeaturesNSLKDD() {
-    	StringBuilder dump = new StringBuilder();
+		try {
+			StringBuilder dump = new StringBuilder();
 
-		dump.append("0").append(separator);										//00 Label
-		//Basic Feature (Total: 9)
-		long flowDuration = (flowLastSeen - flowStartTime) / 1000;
-		dump.append(flowDuration).append(separator);							//01 Duration
-		dump.append(this.getProtocol()).append(separator);   					//02 Protocol Type  PROTO_ZERO = 0, ICMP = 1,	TCP = 6,UDP = 17
-    	dump.append(this.service).append(separator);          					//03 Service
-    	dump.append(this.flag).append(separator);  								//04 Flag
-    	dump.append(this.getSflow_fbytes()).append(separator);          		//05 Src Bytes
-		dump.append(this.getSflow_bbytes()).append(separator);         			//06 Dst Bytes
-		dump.append(this.getSrcIP().equals(this.getDstIP()) && this.srcPort == this.dstPort ? 1 : 0).append(separator); 	//07 LAND
-		dump.append("0").append(separator);         							//08 Wrong Fragment
-		dump.append(urgent_packets).append(separator);         					//09 Urgent
+			dump.append("0").append(separator);										//00 Label
+			//Basic Feature (Total: 9)
+			long flowDuration = (flowLastSeen - flowStartTime) / 1000;
+			dump.append(flowDuration).append(separator);							//01 Duration
+			dump.append(this.getProtocol()).append(separator);   					//02 Protocol Type  PROTO_ZERO = 0, ICMP = 1,	TCP = 6,UDP = 17
+			dump.append(this.service).append(separator);          					//03 Service
+			dump.append(this.flag).append(separator);  								//04 Flag
+			dump.append(this.getSflow_fbytes()).append(separator);          		//05 Src Bytes
+			dump.append(this.getSflow_bbytes()).append(separator);         			//06 Dst Bytes
+			dump.append(this.getSrcIP().equals(this.getDstIP()) && this.srcPort == this.dstPort ? 1 : 0).append(separator); 	//07 LAND
+			dump.append("0").append(separator);         							//08 Wrong Fragment
+			dump.append(urgent_packets).append(separator);         					//09 Urgent
 
-		//Content Featureres (Total: 13)
-		dump.append(0).append(separator);         								//10 Hot
-		dump.append(0).append(separator);         								//11 Hot
-		dump.append(0).append(separator);         								//12 Hot
-		dump.append(0).append(separator);         								//13 Hot
-		dump.append(0).append(separator);         								//14 Hot
-		dump.append(0).append(separator);         								//15 Hot
-		dump.append(0).append(separator);         								//16 Hot
-		dump.append(0).append(separator);         								//17 Hot
-		dump.append(0).append(separator);         								//18 Hot
-		dump.append(0).append(separator);         								//19 Hot
-		dump.append(0).append(separator);         								//20 Hot
-		dump.append(0).append(separator);         								//21 Hot
-		dump.append(0).append(separator);         								//22 Hot
+			//Content Featureres (Total: 13)
+			dump.append(0).append(separator);         								//10 Hot
+			dump.append(0).append(separator);         								//11 Hot
+			dump.append(0).append(separator);         								//12 Hot
+			dump.append(0).append(separator);         								//13 Hot
+			dump.append(0).append(separator);         								//14 Hot
+			dump.append(0).append(separator);         								//15 Hot
+			dump.append(0).append(separator);         								//16 Hot
+			dump.append(0).append(separator);         								//17 Hot
+			dump.append(0).append(separator);         								//18 Hot
+			dump.append(0).append(separator);         								//19 Hot
+			dump.append(0).append(separator);         								//20 Hot
+			dump.append(0).append(separator);         								//21 Hot
+			dump.append(0).append(separator);         								//22 Hot
 
-		//Time-Based Features (Total: 9)
-		dump.append(FlowGenerator.timeBasedFeatureStat.getCount(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//23 Count
-		dump.append(FlowGenerator.timeBasedFeatureStat.getSrvCount(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//24 Srv Count
-		dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol, this.flag))).append(separator);	//25 Serror Rate
-		dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getSrvSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol, this.flag))).append(separator);	//26 Srv Serror Rate
-		dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol, this.flag))).append(separator);	//27	Rerror Rate
-		dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol, this.flag))).append(separator);	//28 Srv Rerror Rate
-		dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getSameSrvRate(this.getDstIP(), this.getDstPort(), this.protocol))).append(separator);	//29	Same Srv Rate
-		dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getDiffSrvRate(this.getDstIP(), this.getDstPort(), this.protocol))).append(separator);	//30	Diff Srv Rate
-		dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getSrvDiffHostRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol))).append(separator);	//31	Srv Diff Host Rate
+			//Time-Based Features (Total: 9)
+			dump.append(FlowGenerator.timeBasedFeatureStat.getCount(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//23 Count
+			dump.append(FlowGenerator.timeBasedFeatureStat.getSrvCount(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//24 Srv Count
+			dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol, this.flag))).append(separator);	//25 Serror Rate
+			dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getSrvSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol, this.flag))).append(separator);	//26 Srv Serror Rate
+			dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol, this.flag))).append(separator);	//27	Rerror Rate
+			dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol, this.flag))).append(separator);	//28 Srv Rerror Rate
+			dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getSameSrvRate(this.getDstIP(), this.getDstPort(), this.protocol))).append(separator);	//29	Same Srv Rate
+			dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getDiffSrvRate(this.getDstIP(), this.getDstPort(), this.protocol))).append(separator);	//30	Diff Srv Rate
+			dump.append(String.format("%.2f",FlowGenerator.timeBasedFeatureStat.getSrvDiffHostRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.protocol))).append(separator);	//31	Srv Diff Host Rate
 
-		//Host-Based Features (Total: 10)
-		dump.append(FlowGenerator.connectionBasedFeatureStat.getDstHostCount(this.getDstIP(), this.getDstPort(), this.getProtocol())).append(separator);		//32	Dst Host Count
-		dump.append(FlowGenerator.connectionBasedFeatureStat.getDstHostSrvCount(this.getDstIP(), this.getDstPort(), this.getProtocol())).append(separator);	//33	Dst Host Srv Count
-		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSameSrvRate(this.getDstIP(), this.getDstPort(), this.getProtocol()))).append(separator);	//34	Dst Host Same Srv Rate
-		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostDiffSrvRate(this.getDstIP(), this.getDstPort(), this.getProtocol()))).append(separator);	//35	Dst Host Diff Srv Rate
-		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSameSrcPortRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol()))).append(separator);//36	Dst Host Same Src Port Rate
-		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvDiffHostRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol()))).append(separator);//37	Dst Host Srv Diff Host Rate
-		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//38	Dst Host Serror Rate
-		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//39	Dst Host Srv Serror Rate
-		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//40	Dst Host Rerror Rate
-		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//41	Dst Host Srv Rerror Rate
+			//Host-Based Features (Total: 10)
+			dump.append(FlowGenerator.connectionBasedFeatureStat.getDstHostCount(this.getDstIP(), this.getDstPort(), this.getProtocol())).append(separator);		//32	Dst Host Count
+			dump.append(FlowGenerator.connectionBasedFeatureStat.getDstHostSrvCount(this.getDstIP(), this.getDstPort(), this.getProtocol())).append(separator);	//33	Dst Host Srv Count
+			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSameSrvRate(this.getDstIP(), this.getDstPort(), this.getProtocol()))).append(separator);	//34	Dst Host Same Srv Rate
+			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostDiffSrvRate(this.getDstIP(), this.getDstPort(), this.getProtocol()))).append(separator);	//35	Dst Host Diff Srv Rate
+			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSameSrcPortRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol()))).append(separator);//36	Dst Host Same Src Port Rate
+			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvDiffHostRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol()))).append(separator);//37	Dst Host Srv Diff Host Rate
+			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//38	Dst Host Serror Rate
+			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//39	Dst Host Srv Serror Rate
+			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//40	Dst Host Rerror Rate
+			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//41	Dst Host Srv Rerror Rate
 
-		//extra info
-		dump.append(this.getProtocolStr()).append(separator);	//protocal
-		dump.append(this.getSrcIP()).append(separator);			//source ip
-		dump.append(this.getSrcPort()).append(separator);		//source port
-		dump.append(this.getDstIP()).append(separator);			//destination ip
-		dump.append(this.getDstPort());		//destination port
+			//extra info
+			dump.append(this.getProtocolStr()).append(separator);	//protocal
+			dump.append(this.getSrcIP()).append(separator);			//source ip
+			dump.append(this.getSrcPort()).append(separator);		//source port
+			dump.append(this.getDstIP()).append(separator);			//destination ip
+			dump.append(this.getDstPort());		//destination port
 
-		return dump.toString();
+			return dump.toString();
+		} catch(Exception ex ) {
+			logger.error("", ex);
+		}
+
+		return null;
     }
 
 	public String dumpFlowBasedFeaturesEx() {

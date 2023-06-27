@@ -48,7 +48,7 @@ public class NSLKDDTrafficFlowWorker implements FlowGenListener, Runnable {
 		flowGen.addFlowListener(this);
 		int snaplen = 64 * 1024;//2048; // Truncate packet at this size
 		int promiscous = Pcap.MODE_PROMISCUOUS;
-		int timeout = 60 * 1000; // In milliseconds
+		int timeout = 2 * 1000; // In milliseconds
 		StringBuilder errbuf = new StringBuilder();
 		Pcap pcap = Pcap.openLive(device, snaplen, promiscous, timeout, errbuf);
 		if (pcap == null) {
