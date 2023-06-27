@@ -127,7 +127,7 @@ task exeNSLKDD(type: JavaExec){
     }else{
         jvmArgs '-Djava.library.path=jnetpcap/linux/jnetpcap-1.4.r1425'
     }
-    args = ["/home/gpu-union/network_ai/in", "/home/gpu-union/network_ai/out"]
+    args = ["/home/gpu-union/network_ai/CICFlowMeter/in", "/home/gpu-union/network_ai/CICFlowMeter/out"]
 }
 
 
