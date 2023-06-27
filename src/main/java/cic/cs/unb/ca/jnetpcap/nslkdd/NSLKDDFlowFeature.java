@@ -51,12 +51,7 @@ public enum NSLKDDFlowFeature {
     dst_host_serror_rate("Dst Host Serror Rate","dst_host_serror_rate"),
     dst_host_srv_serror_rate("Dst Host Srv Serror Rate","dst_host_srv_serror_rate"),
     dst_host_rerror_rate("Dst Host Rerror Rate","dst_host_rerror_rate"),
-    dst_host_srv_rerror_rate("Dst Host Srv Rerror Rate","dst_host_srv_rerror_rate"),
-
-    class1("Class","class"),
-    difficulty_level("Difficulty Level","difficulty_level");
-
-
+    dst_host_srv_rerror_rate("Dst Host Srv Rerror Rate","dst_host_srv_rerror_rate");
 
     protected static final Logger logger = LoggerFactory.getLogger(NSLKDDFlowFeature.class);
 	private static String HEADER;

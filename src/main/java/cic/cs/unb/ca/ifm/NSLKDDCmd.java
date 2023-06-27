@@ -150,7 +150,7 @@ public class NSLKDDCmd {
             i++;
         }
 
-        flowGen.dumpLabeledCurrentFlowNSLKDD(saveFileFullPath.getPath(), FlowFeature.getHeader());
+        flowGen.dumpLabeledCurrentFlowNSLKDD(saveFileFullPath.getPath(), NSLKDDFlowFeature.getHeader());
 
         long lines = SwingUtils.countLines(saveFileFullPath.getPath());
 

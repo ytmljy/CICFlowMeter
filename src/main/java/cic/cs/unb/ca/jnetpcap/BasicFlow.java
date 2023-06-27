@@ -1253,7 +1253,7 @@ public class BasicFlow {
 		//Basic Feature (Total: 9)
 		long flowDuration = (flowLastSeen - flowStartTime) / 1000;
 		dump.append(flowDuration).append(separator);							//01 Duration
-		dump.append(FormatUtils.ip(src)).append(separator);   					//02 Protocol Type  PROTO_ZERO = 0, ICMP = 1,	TCP = 6,UDP = 17
+		dump.append(this.getProtocol()).append(separator);   					//02 Protocol Type  PROTO_ZERO = 0, ICMP = 1,	TCP = 6,UDP = 17
     	dump.append(this.service).append(separator);          					//03 Service
     	dump.append(this.flag).append(separator);  								//04 Flag
     	dump.append(this.getSflow_fbytes()).append(separator);          		//05 Src Bytes
