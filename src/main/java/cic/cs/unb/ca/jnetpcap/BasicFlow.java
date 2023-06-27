@@ -1249,6 +1249,7 @@ public class BasicFlow {
     public String dumpFlowBasedFeaturesNSLKDD() {
     	StringBuilder dump = new StringBuilder();
 
+		dump.append("0").append(separator);										//00 Label
 		//Basic Feature (Total: 9)
 		long flowDuration = (flowLastSeen - flowStartTime) / 1000;
 		dump.append(flowDuration).append(separator);							//01 Duration
@@ -1297,7 +1298,7 @@ public class BasicFlow {
 		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//38	Dst Host Serror Rate
 		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//39	Dst Host Srv Serror Rate
 		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//40	Dst Host Rerror Rate
-		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//41	Dst Host Srv Rerror Rate
+		dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag)));//41	Dst Host Srv Rerror Rate
 
     	return dump.toString();
     }

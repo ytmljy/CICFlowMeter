@@ -2,6 +2,7 @@ package cic.cs.unb.ca.ifm;
 
 import cic.cs.unb.ca.flow.FlowMgr;
 import cic.cs.unb.ca.jnetpcap.*;
+import cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDFlowFeature;
 import cic.cs.unb.ca.jnetpcap.worker.FlowGenListener;
 import cic.cs.unb.ca.jnetpcap.worker.InsertCsvRow;
 import org.apache.commons.io.FilenameUtils;
@@ -188,7 +189,7 @@ public class NSLKDDCmd {
             String flowDump = flow.dumpFlowBasedFeaturesNSLKDD();
             List<String> flowStringList = new ArrayList<>();
             flowStringList.add(flowDump);
-            InsertCsvRow.insert(FlowFeature.getHeader(),flowStringList,outPath,fileName+ FlowMgr.FLOW_SUFFIX);
+            InsertCsvRow.insert(NSLKDDFlowFeature.getHeader(),flowStringList,outPath,fileName+ FlowMgr.FLOW_SUFFIX);
 
             cnt++;
 
