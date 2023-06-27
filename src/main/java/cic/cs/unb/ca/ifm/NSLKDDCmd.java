@@ -119,7 +119,7 @@ public class NSLKDDCmd {
         }
 
         FlowGenerator flowGen = new FlowGenerator(true, flowTimeout, activityTimeout);
-        flowGen.addFlowListener( new FlowListener(fileName,outPath) );
+        flowGen.addFlowListener( new FlowListener(fileName, outPath) );
         boolean readIP6 = false;
         boolean readIP4 = true;
         PacketReader packetReader = new PacketReader(inputFile, readIP4, readIP6);
@@ -149,7 +149,7 @@ public class NSLKDDCmd {
             i++;
         }
 
-        flowGen.dumpLabeledCurrentFlow(saveFileFullPath.getPath(), FlowFeature.getHeader());
+        flowGen.dumpLabeledCurrentFlowNSLKDD(saveFileFullPath.getPath(), FlowFeature.getHeader());
 
         long lines = SwingUtils.countLines(saveFileFullPath.getPath());
 

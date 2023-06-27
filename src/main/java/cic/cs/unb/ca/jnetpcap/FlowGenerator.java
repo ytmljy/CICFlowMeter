@@ -359,6 +359,49 @@ public class FlowGenerator {
         return total;
 	}
 
+	public long dumpLabeledCurrentFlowNSLKDD(String fileFullPath,String header) {
+		if (fileFullPath == null || header==null) {
+			String ex = String.format("fullFilePath=%s,filename=%s", fileFullPath);
+			throw new IllegalArgumentException(ex);
+		}
+
+		File file = new File(fileFullPath);
+		FileOutputStream output = null;
+		int total = 0;
+		try {
+			if (file.exists()) {
+				output = new FileOutputStream(file, true);
+			}else{
+				if (file.createNewFile()) {
+					output = new FileOutputStream(file);
+					output.write((header + LINE_SEP).getBytes());
+				}
+			}
+
+			for (BasicFlow flow : currentFlows.values()) {
+				if(flow.packetCount()>1) {
+					output.write((flow.dumpFlowBasedFeaturesNSLKDD() + LINE_SEP).getBytes());
+					total++;
+				}else{
+
+				}
+			}
+
+		} catch (IOException e) {
+			logger.debug(e.getMessage());
+		} finally {
+			try {
+				if (output != null) {
+					output.flush();
+					output.close();
+				}
+			} catch (IOException e) {
+				logger.debug(e.getMessage());
+			}
+		}
+		return total;
+	}
+
     private int getFlowCount(){
     	this.finishedFlowCount++;
     	return this.finishedFlowCount;
