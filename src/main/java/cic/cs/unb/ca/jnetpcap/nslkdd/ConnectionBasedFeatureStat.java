@@ -74,6 +74,7 @@ public class ConnectionBasedFeatureStat implements Runnable{
         int dstHostCount = this.getDstHostCount(dstIp, dstPort, protocol);
         int dstHostSrvCount = this.getDstHostSameSrvCount(dstIp, dstPort, protocol);
 
+        logger.info("dstHostCount:{}, dstHostSrvCount{} rate{}", dstHostCount, dstHostSrvCount, dstHostCount == 0 ? 0 : dstHostCount < dstHostSrvCount ? 1 : (dstHostSrvCount / dstHostCount));
         return dstHostCount == 0 ? 0 : dstHostCount < dstHostSrvCount ? 1 : (dstHostSrvCount / dstHostCount);
     }
     public int getDstHostDiffSrvCount(String dstIp, int dstPort, int protocol) {

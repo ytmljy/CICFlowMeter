@@ -72,7 +72,6 @@ public class TimeBasedFeatureStat implements Runnable{
         double dstHostCount = (double)this.getCount(dstIp, dstPort, protocol);
         double dstHostSrvCount = (double)this.getSameSrvCount(dstIp, dstPort, protocol);
 
-        logger.info("dstHostCount:{}, dstHostSrvCount{} rate{}", dstHostCount, dstHostSrvCount, dstHostCount == 0 ? 0 : dstHostCount < dstHostSrvCount ? 1 : (dstHostSrvCount / dstHostCount));
         return dstHostCount == 0 ? 0 : dstHostCount < dstHostSrvCount ? 1 : (dstHostSrvCount / dstHostCount);
     }
     public int getDiffSrvCount(String dstIp, int dstPort, int protocol) {
