@@ -44,7 +44,7 @@ public class NSLKDDTrafficFlowWorker implements FlowGenListener, Runnable {
 
 	public void run() {
 		
-		FlowGenerator   flowGen = new FlowGenerator(true,2*1000L, 2*1000);
+		FlowGenerator   flowGen = new FlowGenerator(true,1 * 24 * 3600 * 1000L, 2*1000);
 		flowGen.addFlowListener(this);
 		int snaplen = 64 * 1024;//2048; // Truncate packet at this size
 		int promiscous = Pcap.MODE_PROMISCUOUS;

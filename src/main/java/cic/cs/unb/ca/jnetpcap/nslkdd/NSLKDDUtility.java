@@ -337,7 +337,7 @@ public class NSLKDDUtility {
                 if ( dstPort >= 49152)
                     return SRV_PRIVATE; // or other?
                 else {
-                    logger.error("srcPort{} dstPort{}", srcPort, dstPort);
+                    logger.error("srcPort:{} dstPort:{}", srcPort, dstPort);
                     return SRV_OTHER;
                 }
         }
