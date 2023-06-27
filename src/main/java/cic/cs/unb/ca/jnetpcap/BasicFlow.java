@@ -1250,7 +1250,7 @@ public class BasicFlow {
     	StringBuilder dump = new StringBuilder();
 
 		//Basic Feature (Total: 9)
-		long flowDuration = flowLastSeen - flowStartTime;
+		long flowDuration = (flowLastSeen - flowStartTime) / 1000;
 		dump.append(flowDuration).append(separator);							//01 Duration
 		dump.append(FormatUtils.ip(src)).append(separator);   					//02 Protocol Type  PROTO_ZERO = 0, ICMP = 1,	TCP = 6,UDP = 17
     	dump.append(this.service).append(separator);          					//03 Service
