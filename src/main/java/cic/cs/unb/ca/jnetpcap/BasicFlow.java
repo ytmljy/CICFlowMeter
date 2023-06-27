@@ -1259,8 +1259,8 @@ public class BasicFlow {
 			dump.append(this.getProtocol()).append(separator);   					//02 Protocol Type  PROTO_ZERO = 0, ICMP = 1,	TCP = 6,UDP = 17
 			dump.append(this.service).append(separator);          					//03 Service
 			dump.append(this.flag).append(separator);  								//04 Flag
-			dump.append(this.getSflow_fbytes()).append(separator);          		//05 Src Bytes
-			dump.append(this.getSflow_bbytes()).append(separator);         			//06 Dst Bytes
+			dump.append(this.forwardBytes).append(separator);          				//05 Src Bytes
+			dump.append(this.backwardBytes).append(separator);         				//06 Dst Bytes
 			dump.append(this.getSrcIP().equals(this.getDstIP()) && this.srcPort == this.dstPort ? 1 : 0).append(separator); 	//07 LAND
 			dump.append("0").append(separator);         							//08 Wrong Fragment
 			dump.append(urgent_packets).append(separator);         					//09 Urgent
