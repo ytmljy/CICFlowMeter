@@ -26,9 +26,12 @@ public class TimeBasedFeatureStat implements Runnable{
     @Override
     public void run() {
         try {
-            logger.debug("TimeBasedFeatureStat-srvCountMap count:" + srvCountMap.size());
-            Thread.sleep(this.monitorPeriod);
+            while( !Thread.interrupted() ) {
+                logger.info("TimeBasedFeatureStat-srvCountMap count:" + srvCountMap.size());
+                Thread.sleep(this.monitorPeriod);
+            }
         } catch (InterruptedException e) {
+            logger.error("",e);
             throw new RuntimeException(e);
         }
     }

@@ -28,9 +28,12 @@ public class ConnectionBasedFeatureStat implements Runnable{
     @Override
     public void run() {
         try {
-            logger.debug("ConnectionBasedFeatureStat-srvCountMap count:" + srvCountMap.size());
-            Thread.sleep(this.monitorPeriod);
+            while( !Thread.interrupted() ) {
+                logger.info("ConnectionBasedFeatureStat-srvCountMap count:" + srvCountMap.size());
+                Thread.sleep(this.monitorPeriod);
+            }
         } catch (InterruptedException e) {
+            logger.error("",e);
             throw new RuntimeException(e);
         }
     }

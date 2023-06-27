@@ -2,7 +2,6 @@ package cic.cs.unb.ca.jnetpcap;
 
 import cic.cs.unb.ca.jnetpcap.nslkdd.ConnectionBasedFeatureStat;
 import cic.cs.unb.ca.jnetpcap.nslkdd.TimeBasedFeatureStat;
-import cic.cs.unb.ca.jnetpcap.nslkdd.TimeBasedFeatureStatBak;
 import cic.cs.unb.ca.jnetpcap.worker.FlowGenListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
