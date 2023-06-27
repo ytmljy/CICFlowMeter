@@ -81,8 +81,8 @@ public class ConnectionBasedFeatureStat implements Runnable{
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1 && key.indexOf("DP="+dstPort)==-1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
     public double getDstHostDiffSrvRate(String dstIp, int dstPort, int protocol) {
-        int dstHostCount = this.getDstHostCount(dstIp, dstPort, protocol);
-        int dstHostDiffSrvCount = this.getDstHostDiffSrvCount(dstIp, dstPort, protocol);
+        double dstHostCount = (double)this.getDstHostCount(dstIp, dstPort, protocol);
+        double dstHostDiffSrvCount = (double)this.getDstHostDiffSrvCount(dstIp, dstPort, protocol);
 
         return dstHostCount == 0 ? 0 : dstHostCount < dstHostDiffSrvCount ? 1 : (dstHostDiffSrvCount / dstHostCount);
     }
@@ -91,8 +91,8 @@ public class ConnectionBasedFeatureStat implements Runnable{
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) &&  key.indexOf("DP="+dstPort) > -1 && key.indexOf("SP="+srcPort) > -1 ).mapToInt( key -> srvCountMap.get(key)).sum();
     }
     public double getDstHostSameSrcPortRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol) {
-        int dstHostSameSrvCount = this.getDstHostSameSrvCount(dstIp, dstPort, protocol);
-        int dstHostSameSrcPortCount = this.getDstHostSameSrcPortCount(dstIp, dstPort, srcIp, srcPort, protocol);
+        double dstHostSameSrvCount = (double)this.getDstHostSameSrvCount(dstIp, dstPort, protocol);
+        double dstHostSameSrcPortCount = (double)this.getDstHostSameSrcPortCount(dstIp, dstPort, srcIp, srcPort, protocol);
 
         return dstHostSameSrvCount == 0 ? 0 : dstHostSameSrvCount < dstHostSameSrcPortCount ? 1 : (dstHostSameSrcPortCount / dstHostSameSrvCount);
     }
@@ -101,8 +101,8 @@ public class ConnectionBasedFeatureStat implements Runnable{
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) &&  key.indexOf("DP="+dstPort) > -1 && key.indexOf("DI="+dstIp)==-1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
     public double getDstHostSrvDiffHostRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol) {
-        int dstHostSameSrvCount = this.getDstHostSameSrvCount(dstIp, dstPort, protocol);
-        int dstHostSrvDiffHostCount = this.getDstHostSrvDiffHostCount(dstIp, dstPort, srcIp, srcPort, protocol);
+        double dstHostSameSrvCount = (double)this.getDstHostSameSrvCount(dstIp, dstPort, protocol);
+        double dstHostSrvDiffHostCount = (double)this.getDstHostSrvDiffHostCount(dstIp, dstPort, srcIp, srcPort, protocol);
 
         return dstHostSameSrvCount == 0 ? 0 : dstHostSameSrvCount < dstHostSrvDiffHostCount ? 1 : (dstHostSrvDiffHostCount / dstHostSameSrvCount);
     }
@@ -116,8 +116,8 @@ public class ConnectionBasedFeatureStat implements Runnable{
         )).mapToInt( key -> srvCountMap.get(key)).sum();
     }
     public double getDstHostSerrorRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol, NSLKDDConst.conversation_state_t flag) {
-        int dstHostCount = this.getDstHostCount(dstIp, dstPort, protocol);
-        int dstHostSerrorCount = this.getDstHostSerrorCount(dstIp, protocol, flag);
+        double dstHostCount = (double)this.getDstHostCount(dstIp, dstPort, protocol);
+        double dstHostSerrorCount = (double)this.getDstHostSerrorCount(dstIp, protocol, flag);
 
         return dstHostCount == 0 ? 0 : dstHostCount < dstHostSerrorCount ? 1 : (dstHostSerrorCount / dstHostCount);
     }
@@ -131,8 +131,8 @@ public class ConnectionBasedFeatureStat implements Runnable{
         )).mapToInt( key -> srvCountMap.get(key)).sum();
     }
     public double getDstHostSrvSerrorRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol, NSLKDDConst.conversation_state_t flag) {
-        int dstHostSameSrvCount = this.getDstHostSameSrvCount(dstIp, dstPort, protocol);
-        int dstHostSrvSerrorCount = this.getDstHostSrvSerrorCount(dstPort, protocol, flag);
+        double dstHostSameSrvCount = (double)this.getDstHostSameSrvCount(dstIp, dstPort, protocol);
+        double dstHostSrvSerrorCount = (double)this.getDstHostSrvSerrorCount(dstPort, protocol, flag);
 
         return dstHostSameSrvCount == 0 ? 0 : dstHostSameSrvCount < dstHostSrvSerrorCount ? 1 : (dstHostSrvSerrorCount / dstHostSameSrvCount);
     }
@@ -143,8 +143,8 @@ public class ConnectionBasedFeatureStat implements Runnable{
         )).mapToInt( key -> srvCountMap.get(key)).sum();
     }
     public double getDstHostRerrorRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol, NSLKDDConst.conversation_state_t flag) {
-        int dstHostCount = this.getDstHostCount(dstIp, dstPort, protocol);
-        int dstHostRerrorCount = this.getDstHostRerrorCount(dstIp, protocol, flag);
+        double dstHostCount = (double)this.getDstHostCount(dstIp, dstPort, protocol);
+        double dstHostRerrorCount = (double)this.getDstHostRerrorCount(dstIp, protocol, flag);
 
         return dstHostCount == 0 ? 0 : dstHostCount < dstHostRerrorCount ? 1 : (dstHostRerrorCount / dstHostCount);
     }
@@ -155,8 +155,8 @@ public class ConnectionBasedFeatureStat implements Runnable{
         )).mapToInt( key -> srvCountMap.get(key)).sum();
     }
     public double getDstHostSrvRerrorRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol, NSLKDDConst.conversation_state_t flag) {
-        int dstHostSameSrvCount = this.getDstHostSameSrvCount(dstIp, dstPort, protocol);
-        int dstHostSrvRerrorCount = this.getDstHostSrvRerrorCount(dstPort, protocol, flag);
+        double dstHostSameSrvCount = (double)this.getDstHostSameSrvCount(dstIp, dstPort, protocol);
+        double dstHostSrvRerrorCount = (double)this.getDstHostSrvRerrorCount(dstPort, protocol, flag);
 
         return dstHostSameSrvCount == 0 ? 0 : dstHostSameSrvCount < dstHostSrvRerrorCount ? 1 : (dstHostSrvRerrorCount / dstHostSameSrvCount);
     }
