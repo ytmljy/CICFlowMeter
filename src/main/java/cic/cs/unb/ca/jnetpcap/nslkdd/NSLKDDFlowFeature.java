@@ -51,7 +51,12 @@ public enum NSLKDDFlowFeature {
     dst_host_serror_rate("Dst Host Serror Rate","dst_host_serror_rate"),
     dst_host_srv_serror_rate("Dst Host Srv Serror Rate","dst_host_srv_serror_rate"),
     dst_host_rerror_rate("Dst Host Rerror Rate","dst_host_rerror_rate"),
-    dst_host_srv_rerror_rate("Dst Host Srv Rerror Rate","dst_host_srv_rerror_rate");
+    dst_host_srv_rerror_rate("Dst Host Srv Rerror Rate","dst_host_srv_rerror_rate"),
+    protocal_name("Protocol Name","protocalStr"),
+    src_ip("Source IP","src_ip"),
+    src_port("Source Port","src_port"),
+    dst_ip("Dst IP","dst_ip"),
+    dst_port("Dst Port","dst_port");
 
     protected static final Logger logger = LoggerFactory.getLogger(NSLKDDFlowFeature.class);
 	private static String HEADER;
