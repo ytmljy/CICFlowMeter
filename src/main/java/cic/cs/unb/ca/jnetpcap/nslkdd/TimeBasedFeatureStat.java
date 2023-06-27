@@ -69,8 +69,8 @@ public class TimeBasedFeatureStat implements Runnable{
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1 && key.indexOf("DP="+dstPort) >  -1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
     public double getSameSrvRate(String dstIp, int dstPort, int protocol) {
-        int dstHostCount = this.getCount(dstIp, dstPort, protocol);
-        int dstHostSrvCount = this.getSameSrvCount(dstIp, dstPort, protocol);
+        double dstHostCount = (double)this.getCount(dstIp, dstPort, protocol);
+        double dstHostSrvCount = (double)this.getSameSrvCount(dstIp, dstPort, protocol);
 
         return dstHostCount == 0 ? 0 : dstHostCount < dstHostSrvCount ? 1 : (dstHostSrvCount / dstHostCount);
     }
