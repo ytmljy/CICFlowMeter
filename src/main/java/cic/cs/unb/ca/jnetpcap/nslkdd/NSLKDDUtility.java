@@ -1,11 +1,16 @@
 package cic.cs.unb.ca.jnetpcap.nslkdd;
 
 
+import cic.cs.unb.ca.jnetpcap.BasicFlow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst.icmp_field_type_t.*;
 import static cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst.service_t.*;
 
 public class NSLKDDUtility {
 
+    public static final Logger logger = LoggerFactory.getLogger(NSLKDDUtility.class);
     /* CHECK:: TCP SERVICE */
     public static NSLKDDConst.service_t get_service_tcp(int srcPort, int dstPort)
     {
@@ -331,8 +336,10 @@ public class NSLKDDUtility {
                 // from 49152 - 65535 (never assigned)
                 if ( dstPort >= 49152)
                     return SRV_PRIVATE; // or other?
-                else
+                else {
+                    logger.error("srcPort{} dstPort{}", srcPort, dstPort);
                     return SRV_OTHER;
+                }
         }
     }
 
