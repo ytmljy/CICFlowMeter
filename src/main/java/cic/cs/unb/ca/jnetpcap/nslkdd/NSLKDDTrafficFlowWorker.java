@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -33,12 +34,17 @@ public class NSLKDDTrafficFlowWorker implements FlowGenListener, Runnable {
 		super();
 		this.device = device;
         filePath = "./out";
-        fileName = PROPERTY_FLOW + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+
+        String hostName = null;
+        try {
+            hostName = InetAddress.getLocalHost().getHostName()
+        } catch(Exception ex) {}
+        fileName = PROPERTY_FLOW + "_" + hostName + "_" + device + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
 	}
 
 	public void run() {
 		
-		FlowGenerator   flowGen = new FlowGenerator(true,120000000L, 5000000L);
+		FlowGenerator   flowGen = new FlowGenerator(true,2*1000L, 2*1000);
 		flowGen.addFlowListener(this);
 		int snaplen = 64 * 1024;//2048; // Truncate packet at this size
 		int promiscous = Pcap.MODE_PROMISCUOUS;
