@@ -186,7 +186,7 @@ public class NSLKDDCmd {
         @Override
         public void onFlowGenerated(BasicFlow flow) {
 
-            String flowDump = flow.dumpFlowBasedFeaturesNSLKDD();
+            String flowDump = flow.dumpFlowBasedFeaturesNSLKDD(true);
             List<String> flowStringList = new ArrayList<>();
             flowStringList.add(flowDump);
             InsertCsvRow.insert(NSLKDDFlowFeature.getHeader(),flowStringList,outPath,fileName+ FlowMgr.FLOW_SUFFIX);

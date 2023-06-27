@@ -2,8 +2,24 @@ package cic.cs.unb.ca.jnetpcap.nslkdd;
 
 
 import cic.cs.unb.ca.jnetpcap.BasicFlow;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import static cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst.icmp_field_type_t.*;
 import static cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst.service_t.*;
@@ -447,6 +463,54 @@ public class NSLKDDUtility {
                 return ADDRESSREPLY;
             default:
                 return ECHOREPLY;
+        }
+    }
+    public String preditRequest(String url, String jsonData) throws IOException {
+
+        CloseableHttpClient client = null;
+        BufferedReader in = null;
+        StringBuffer result = new StringBuffer();
+
+        try {
+            client = HttpClients.createDefault();
+            HttpPost httpPost = new HttpPost(url);
+
+            // 헤더 설정이 필요한 경우
+            //httpPost.setHeader("header_key", "header_value");
+
+            // JSON 데이터를 추가.
+            httpPost.setEntity(new StringEntity(jsonData, ContentType.APPLICATION_JSON));
+
+            // Key / Value 속성으로 할 경우
+            // List<NameValuePair> params = new ArrayList<NameValuePair>();
+            // params.add(new BasicNameValuePair("key", "value"));
+            // httpPost.setEntity(new UrlEncodedFormEntity(params));
+
+            // 실행
+            CloseableHttpResponse httpresponse = client.execute(httpPost);
+
+            // 결과 수신
+            InputStream inputStream = (InputStream)httpresponse.getEntity().getContent();
+
+            String inputLine = null;
+            in = new BufferedReader(new InputStreamReader(inputStream, "utf-8"));
+
+            while((inputLine = in.readLine()) != null) {
+                result.append(inputLine);
+            }
+
+            JSONObject json = (JSONObject) JSONValue.parse(result.toString());
+            JSONObject resultJson = (JSONObject)json.get("result");
+            String pred = (String)resultJson.get("pred");
+
+        }catch(IOException ioe) {
+            throw ioe;
+        }finally {
+            if(in != null) {
+                try {
+                    in.close();
+                } catch(IOException ioe) { throw ioe; }
+            }
         }
     }
 

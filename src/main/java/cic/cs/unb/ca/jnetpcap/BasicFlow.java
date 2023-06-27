@@ -1248,7 +1248,7 @@ public class BasicFlow {
         return "NeedManualLabel";
     }
 	
-    public String dumpFlowBasedFeaturesNSLKDD() {
+    public String dumpFlowBasedFeaturesNSLKDD(boolean debugFlag) {
 		try {
 			StringBuilder dump = new StringBuilder();
 
@@ -1301,14 +1301,18 @@ public class BasicFlow {
 			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//38	Dst Host Serror Rate
 			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvSerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//39	Dst Host Srv Serror Rate
 			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//40	Dst Host Rerror Rate
-			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag))).append(separator);//41	Dst Host Srv Rerror Rate
+			dump.append(String.format("%.2f",FlowGenerator.connectionBasedFeatureStat.getDstHostSrvRerrorRate(this.getDstIP(), this.getDstPort(), this.getSrcIP(), this.getSrcPort(), this.getProtocol(),this.flag)));//41	Dst Host Srv Rerror Rate
 
 			//extra info
-			dump.append(this.getProtocolStr()).append(separator);	//protocal
-			dump.append(this.getSrcIP()).append(separator);			//source ip
-			dump.append(this.getSrcPort()).append(separator);		//source port
-			dump.append(this.getDstIP()).append(separator);			//destination ip
-			dump.append(this.getDstPort());		//destination port
+			if( debugFlag ) {
+				dump.append(separator);
+				dump.append(this.getProtocolStr()).append(separator);	//protocal
+				dump.append(this.getSrcIP()).append(separator);			//source ip
+				dump.append(this.getSrcPort()).append(separator);		//source port
+				dump.append(this.getDstIP()).append(separator);			//destination ip
+				dump.append(this.getDstPort());		//destination port
+			}
+
 
 			return dump.toString();
 		} catch(Exception ex ) {

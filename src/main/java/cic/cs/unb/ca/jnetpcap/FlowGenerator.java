@@ -379,7 +379,7 @@ public class FlowGenerator {
 
 			for (BasicFlow flow : currentFlows.values()) {
 				if(flow.packetCount()>1) {
-					output.write((flow.dumpFlowBasedFeaturesNSLKDD() + LINE_SEP).getBytes());
+					output.write((flow.dumpFlowBasedFeaturesNSLKDD(true) + LINE_SEP).getBytes());
 					total++;
 				}else{
 
