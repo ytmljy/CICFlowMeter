@@ -37,7 +37,7 @@ public class NSLKDDTrafficFlowWorker implements FlowGenListener, Runnable {
 
         String hostName = null;
         try {
-            hostName = InetAddress.getLocalHost().getHostName()
+            hostName = InetAddress.getLocalHost().getHostName();
         } catch(Exception ex) {}
         fileName = PROPERTY_FLOW + "_" + hostName + "_" + device + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
 	}
