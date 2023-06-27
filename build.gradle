@@ -118,8 +118,8 @@ task exeCMD(type: JavaExec){
     args = ["/home/gpu-union/CICFlowMeter/in", "/home/gpu-union/CICFlowMeter/out"]
 }
 
-task exeNLSKDD(type: JavaExec){
-    main = "cic.cs.unb.ca.ifm.NLSKDDCmd" //main class
+task exeNSLKDD(type: JavaExec){
+    main = "cic.cs.unb.ca.ifm.NSLKDDCmd" //main class
     classpath = sourceSets.main.runtimeClasspath
     String osName = System.getProperty('os.name').toLowerCase()
     if(osName.contains('windows')){
