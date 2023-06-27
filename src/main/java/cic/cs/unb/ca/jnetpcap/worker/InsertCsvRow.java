@@ -40,7 +40,7 @@ public class InsertCsvRow implements Runnable {
         insert(header,rows,savepath,filename);
     }
 
-    public static void insert(String header,List<String>  rows,String savepath, String filename) {
+    public static void insert(String header,List<String>  rows, String savepath, String filename) {
         if (savepath == null || filename == null || rows == null || rows.size() <= 0) {
             String ex = String.format("savepath=%s,filename=%s", savepath, filename);
             throw new IllegalArgumentException(ex);
