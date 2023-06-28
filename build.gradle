@@ -150,7 +150,7 @@ task exeNSLKDDFlowMeter(type: JavaExec){
     }else{
         jvmArgs '-Djava.library.path=jnetpcap/linux/jnetpcap-1.4.r1425'
     }
-//    args = [networkIF]
+    args = [networkIF]
 }
 
 

@@ -100,11 +100,41 @@ public class NSLKDDTrafficFlowWorker implements FlowGenListener, Runnable {
 	@Override
 	public void onFlowGenerated(BasicFlow flow) {
         String flowDump = flow.dumpFlowBasedFeaturesNSLKDD(true);
+        flowDump = predictFlow(flowDump);
         List<String> flowStringList = new ArrayList<>();
         flowStringList.add(flowDump);
-        InsertCsvRow.insert(NSLKDDFlowFeature.getHeader(),flowStringList, filePath,fileName+ FlowMgr.FLOW_SUFFIX);
+        InsertCsvRow.insert(NSLKDDFlowFeature.getHeader(), flowStringList, filePath,fileName+ FlowMgr.FLOW_SUFFIX);
         cnt++;
         String console = String.format("%s -> %d flows \r", fileName,cnt);
         System.out.print(console);
 	}
+
+    private String predictFlow(String flowDump) {
+
+        String[] featureList = flowDump.split(",");
+
+        StringBuffer features = new StringBuffer();
+        for( int i=0; i < 42; i++ ) {
+            if( i < 41 )
+                features.append(featureList[i]).append(",");
+            else
+                features.append(featureList[i]);
+        }
+
+        String json = "{\"data\":[" + flowDump + "]}";
+        String result = NSLKDDUtility.preditRequest("http://localhost:8081/dnnTest3", json);
+
+        if( result != null )
+            featureList[0] = result;
+
+        StringBuffer featuresResult = new StringBuffer();
+        for( int i=0; i < featureList.length; i++ ) {
+            if( i < featureList.length - 1 )
+                featuresResult.append(featureList[i]).append(",");
+            else
+                featuresResult.append(featureList[i]);
+        }
+
+        return featuresResult.toString();
+    }
 }
