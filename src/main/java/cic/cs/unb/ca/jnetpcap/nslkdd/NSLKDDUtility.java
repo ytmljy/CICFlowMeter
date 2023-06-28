@@ -509,8 +509,10 @@ public class NSLKDDUtility {
             if(in != null) {
                 try {
                     in.close();
-                } catch(IOException ioe) { throw ioe; }
+                } catch(IOException ioe) {  }
             }
         }
+
+        return null;
     }
 }
