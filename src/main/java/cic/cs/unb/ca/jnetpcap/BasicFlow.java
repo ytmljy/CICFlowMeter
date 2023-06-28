@@ -5,14 +5,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import cic.cs.unb.ca.jnetpcap.nslkdd.Flag;
 import cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst;
 import cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDUtility;
+import cic.cs.unb.ca.jnetpcap.nslkdd.Service;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.jnetpcap.packet.format.FormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst.conversation_state_t.*;
+import static cic.cs.unb.ca.jnetpcap.nslkdd.Flag.*;
 
 public class BasicFlow {
 
@@ -68,8 +70,8 @@ public class BasicFlow {
     private     long   activityTimeout;
 
 	//NSL-KDD DataSet 추가
-	private		NSLKDDConst.conversation_state_t flag = NSLKDDConst.conversation_state_t.INIT;
-	private 	NSLKDDConst.service_t service;
+	private Flag flag = Flag.INIT;
+	private Service service;
 	private 	int urgent_packets;
 
 
@@ -474,7 +476,7 @@ public class BasicFlow {
 		else if( packet.getProtocol() == NSLKDDConst.PROTOCOL_TYPE_UDP)
 			service = NSLKDDUtility.get_service_udp(packet.getSrcPort(), packet.getDstPort());
 		else {
-			service = NSLKDDConst.service_t.SRV_OTHER;
+			service = Service.SRV_OTHER;
 			logger.error("invalid protocol flowId{}" + packet.getProtocol(), this.getFlowId());
 		}
 	}
@@ -1257,8 +1259,8 @@ public class BasicFlow {
 			long flowDuration = (flowLastSeen - flowStartTime) / 1000;
 			dump.append(flowDuration).append(separator);							//01 Duration
 			dump.append(this.getProtocol()).append(separator);   					//02 Protocol Type  PROTO_ZERO = 0, ICMP = 1,	TCP = 6,UDP = 17
-			dump.append(this.service).append(separator);          					//03 Service
-			dump.append(this.flag).append(separator);  								//04 Flag
+			dump.append(this.service.getCode()).append(separator);         			//03 Service
+			dump.append(this.flag.getCode()).append(separator);  					//04 Flag
 			dump.append(this.forwardBytes).append(separator);          				//05 Src Bytes
 			dump.append(this.backwardBytes).append(separator);         				//06 Dst Bytes
 			dump.append(this.getSrcIP().equals(this.getDstIP()) && this.srcPort == this.dstPort ? 1 : 0).append(separator); 	//07 LAND
@@ -1306,7 +1308,7 @@ public class BasicFlow {
 			//extra info
 			if( debugFlag ) {
 				dump.append(separator);
-				dump.append(this.getProtocolStr()).append(separator);	//protocal
+				dump.append(this.service.getName()).append(separator);	//protocal Name
 				dump.append(this.getSrcIP()).append(separator);			//source ip
 				dump.append(this.getSrcPort()).append(separator);		//source port
 				dump.append(this.getDstIP()).append(separator);			//destination ip

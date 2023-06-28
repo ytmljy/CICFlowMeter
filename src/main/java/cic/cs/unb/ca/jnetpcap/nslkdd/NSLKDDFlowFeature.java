@@ -52,7 +52,7 @@ public enum NSLKDDFlowFeature {
     dst_host_srv_serror_rate("Dst Host Srv Serror Rate","dst_host_srv_serror_rate"),
     dst_host_rerror_rate("Dst Host Rerror Rate","dst_host_rerror_rate"),
     dst_host_srv_rerror_rate("Dst Host Srv Rerror Rate","dst_host_srv_rerror_rate"),
-    protocal_name("Protocol Name","protocalStr"),
+    service_name("Service Name","service_name"),
     src_ip("Source IP","src_ip"),
     src_port("Source Port","src_port"),
     dst_ip("Dst IP","dst_ip"),

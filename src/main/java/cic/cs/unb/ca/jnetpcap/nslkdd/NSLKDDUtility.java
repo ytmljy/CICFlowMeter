@@ -18,19 +18,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import static cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst.icmp_field_type_t.*;
-import static cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst.service_t.*;
+import static cic.cs.unb.ca.jnetpcap.nslkdd.Service.*;
 
 public class NSLKDDUtility {
 
     public static final Logger logger = LoggerFactory.getLogger(NSLKDDUtility.class);
     /* CHECK:: TCP SERVICE */
-    public static NSLKDDConst.service_t get_service_tcp(int srcPort, int dstPort)
+    public static Service get_service_tcp(int srcPort, int dstPort)
     {
         // Identify FTP data in active FTP can be identified by source port
         // TODO: passive FTP (only through FTP control payload inspection?)
         switch (srcPort) {
             case 20:
-                return NSLKDDConst.service_t.SRV_FTP_DATA;
+                return Service.SRV_FTP_DATA;
             // case 22:
             // 	return SRV_SSH;
         }
@@ -356,7 +356,7 @@ public class NSLKDDUtility {
     }
 
     /* CHECK:: UDP SERVICE */
-    public static NSLKDDConst.service_t get_service_udp(int srcPort, int dstPort)
+    public static Service get_service_udp(int srcPort, int dstPort)
     {
         switch (dstPort)
         {
@@ -381,7 +381,7 @@ public class NSLKDDUtility {
     }
 
     /* CHECK:: ICMP SERVICE */
-    public static NSLKDDConst.service_t get_service_icmp(NSLKDDConst.icmp_field_type_t icmp_type, int icmp_code)
+    public static Service get_service_icmp(NSLKDDConst.icmp_field_type_t icmp_type, int icmp_code)
     {
         switch (icmp_type)
         {
