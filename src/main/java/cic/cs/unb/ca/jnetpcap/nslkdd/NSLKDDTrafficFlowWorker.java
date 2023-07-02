@@ -122,7 +122,7 @@ public class NSLKDDTrafficFlowWorker implements FlowGenListener, Runnable {
         }
 
         String json = "{\"data\": [" + features.toString() + "]}";
-        String result = NSLKDDUtility.preditRequest("http://localhost:8081/dnnTest3", json);
+        String result = NSLKDDUtility.preditRequest("http://localhost:8000/dnnTest3", json);
 
         if( result != null )
             featureList[0] = result;
