@@ -1315,7 +1315,7 @@ public class BasicFlow {
 				dump.append(this.getSrcPort()).append(separator);		//source port
 				dump.append(this.getDstIP()).append(separator);			//destination ip
 				dump.append(this.getDstPort()).append(separator);		//destination port
-				dump.append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));		//logging time
+				dump.append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));		//logging time
 			}
 
 
