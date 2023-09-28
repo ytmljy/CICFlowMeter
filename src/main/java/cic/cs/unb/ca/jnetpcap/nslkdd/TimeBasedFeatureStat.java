@@ -5,19 +5,22 @@ import net.jodah.expiringmap.ExpiringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class TimeBasedFeatureStat implements Runnable{
     public static final Logger logger = LoggerFactory.getLogger(TimeBasedFeatureStat.class);
-    private Map<String, Integer> srvCountMap = null;
+    private Map<String, Integer> srvCountOrgMap = null;
+    Map<String, Integer> srvCountMap = null;
+
     private int checkDuration = 2;
-    private long monitorPeriod = 1 * 10 * 1000L;
+    private long monitorPeriod = 1 * 1 * 1000L;
 
     public TimeBasedFeatureStat(int checkDuration) {
         this.checkDuration = checkDuration;
 
-        srvCountMap = ExpiringMap.builder()
+        srvCountOrgMap = ExpiringMap.builder()
                 .maxSize(10000)
                 .expirationPolicy(ExpirationPolicy.CREATED)
                 .expiration(this.checkDuration, TimeUnit.SECONDS)
@@ -27,8 +30,10 @@ public class TimeBasedFeatureStat implements Runnable{
     public void run() {
         try {
             while( !Thread.interrupted() ) {
-                logger.info("TimeBasedFeatureStat-srvCountMap count:" + srvCountMap.size());
+                logger.info("TimeBasedFeatureStat-srvCountMap count:" + srvCountOrgMap.size());
                 Thread.sleep(this.monitorPeriod);
+                srvCountMap = new HashMap<>();
+                srvCountMap.putAll(srvCountOrgMap);
             }
         } catch (InterruptedException e) {
             logger.error("",e);
@@ -49,51 +54,51 @@ public class TimeBasedFeatureStat implements Runnable{
         return sb.toString();
     }
 
-    public synchronized void addConnection(String srcIp, int srcPort, String dstIp, int dstPort, int protocol, Flag flag ) {
+    public  void addConnection(String srcIp, int srcPort, String dstIp, int dstPort, int protocol, Flag flag ) {
 
         String key = makeKey(srcIp, srcPort, dstIp, dstPort, protocol, flag);
-        if( srvCountMap.containsKey(key) ) {
-            int tmpCount = srvCountMap.get(key);
-            srvCountMap.put(key, tmpCount+1);
+        if( srvCountOrgMap.containsKey(key) ) {
+            int tmpCount = srvCountOrgMap.get(key);
+            srvCountOrgMap.put(key, tmpCount+1);
         } else {
-            srvCountMap.put(key, 1);
+            srvCountOrgMap.put(key, 1);
         }
     }
-    public synchronized int getCount(String dstIp, int dstPort, int protocol) {
+    public  int getCount(String dstIp, int dstPort, int protocol) {
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
-    public synchronized  int getSrvCount(String dstIp, int dstPort, int protocol) {
+    public   int getSrvCount(String dstIp, int dstPort, int protocol) {
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) &&  key.indexOf("DP="+dstPort) > -1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
-    public synchronized  int getSameSrvCount(String dstIp, int dstPort, int protocol) {
+    public   int getSameSrvCount(String dstIp, int dstPort, int protocol) {
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1 && key.indexOf("DP="+dstPort) >  -1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
-    public synchronized double getSameSrvRate(String dstIp, int dstPort, int protocol) {
+    public  double getSameSrvRate(String dstIp, int dstPort, int protocol) {
         double dstHostCount = (double)this.getCount(dstIp, dstPort, protocol);
         double dstHostSrvCount = (double)this.getSameSrvCount(dstIp, dstPort, protocol);
 
         return dstHostCount == 0 ? 0 : dstHostCount < dstHostSrvCount ? 1 : (dstHostSrvCount / dstHostCount);
     }
-    public synchronized int getDiffSrvCount(String dstIp, int dstPort, int protocol) {
+    public  int getDiffSrvCount(String dstIp, int dstPort, int protocol) {
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1 && key.indexOf("DP="+dstPort)==-1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
-    public synchronized double getDiffSrvRate(String dstIp, int dstPort, int protocol) {
+    public  double getDiffSrvRate(String dstIp, int dstPort, int protocol) {
         double dstHostCount = (double)this.getCount(dstIp, dstPort, protocol);
         double dstHostDiffSrvCount = (double)this.getDiffSrvCount(dstIp, dstPort, protocol);
 
         return dstHostCount == 0 ? 0 : dstHostCount < dstHostDiffSrvCount ? 1 : (dstHostDiffSrvCount / dstHostCount);
     }
-    public synchronized int getSrvDiffHostCount(String dstIp, int dstPort, String srcIp, int srcPort, int protocol) {
+    public  int getSrvDiffHostCount(String dstIp, int dstPort, String srcIp, int srcPort, int protocol) {
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) &&  key.indexOf("DP="+dstPort) > -1 && key.indexOf("DI="+dstIp)==-1).mapToInt( key -> srvCountMap.get(key)).sum();
     }
-    public synchronized double getSrvDiffHostRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol) {
+    public  double getSrvDiffHostRate(String dstIp, int dstPort, String srcIp, int srcPort,int protocol) {
         double dstHostSameSrvCount = (double)this.getSrvCount(dstIp, dstPort, protocol);
         double dstHostSrvDiffHostCount = (double)this.getSrvDiffHostCount(dstIp, dstPort, srcIp, srcPort, protocol);
 
         return dstHostSameSrvCount == 0 ? 0 : dstHostSameSrvCount < dstHostSrvDiffHostCount ? 1 : (dstHostSrvDiffHostCount / dstHostSameSrvCount);
     }
     //38	Dst Host Serror Rate
-    public synchronized int getSerrorCount(String dstIp, int protocol, Flag flag)  {
+    public  int getSerrorCount(String dstIp, int protocol, Flag flag)  {
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1 && (
                         key.indexOf("F="+Flag.S0) > -1
                         || key.indexOf("F="+Flag.S1) > -1
@@ -108,7 +113,7 @@ public class TimeBasedFeatureStat implements Runnable{
         return dstHostCount == 0 ? 0 : dstHostCount < dstHostSerrorCount ? 1 : (dstHostSerrorCount / dstHostCount);
     }
     //39	Dst Host Srv Serror Rate
-    public synchronized int getSrvSerrorCount(int dstPort, int protocol, Flag flag)  {
+    public  int getSrvSerrorCount(int dstPort, int protocol, Flag flag)  {
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) &&  key.indexOf("DP="+dstPort) > -1 && (
                 key.indexOf("F="+Flag.S0) > -1
                         || key.indexOf("F="+Flag.S1) > -1
@@ -123,7 +128,7 @@ public class TimeBasedFeatureStat implements Runnable{
         return dstHostSameSrvCount == 0 ? 0 : dstHostSameSrvCount < dstHostSrvSerrorCount ? 1 : (dstHostSrvSerrorCount / dstHostSameSrvCount);
     }
     //40	Dst Host Rerror Rate
-    public synchronized int getRerrorCount(String dstIp, int protocol, Flag flag)  {
+    public  int getRerrorCount(String dstIp, int protocol, Flag flag)  {
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1 && (
                 key.indexOf("F="+Flag.REJ) > -1
         )).mapToInt( key -> srvCountMap.get(key)).sum();
@@ -135,7 +140,7 @@ public class TimeBasedFeatureStat implements Runnable{
         return dstHostCount == 0 ? 0 : dstHostCount < dstHostRerrorCount ? 1 : (dstHostRerrorCount / dstHostCount);
     }
     //41	Dst Host Srv Rerror Rate
-    public synchronized int getSrvRerrorCount(int dstPort, int protocol, Flag flag)  {
+    public  int getSrvRerrorCount(int dstPort, int protocol, Flag flag)  {
         return srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) &&  key.indexOf("DP="+dstPort) > -1 && (
                 key.indexOf("F="+Flag.REJ) > -1
         )).mapToInt( key -> srvCountMap.get(key)).sum();
