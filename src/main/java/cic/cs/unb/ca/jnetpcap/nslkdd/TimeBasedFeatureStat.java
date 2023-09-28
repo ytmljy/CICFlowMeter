@@ -26,14 +26,18 @@ public class TimeBasedFeatureStat implements Runnable{
                 .expiration(this.checkDuration, TimeUnit.SECONDS)
                 .build();
     }
+
     @Override
     public void run() {
         try {
             while( !Thread.interrupted() ) {
                 logger.info("TimeBasedFeatureStat-srvCountMap count:" + srvCountOrgMap.size());
                 Thread.sleep(this.monitorPeriod);
-                srvCountMap = new HashMap<>();
-                srvCountMap.putAll(srvCountOrgMap);
+
+                synchronized (srvCountOrgMap) {
+                    srvCountMap = new HashMap<>();
+                    srvCountMap.putAll(srvCountOrgMap);
+                }
             }
         } catch (InterruptedException e) {
             logger.error("",e);
@@ -57,11 +61,14 @@ public class TimeBasedFeatureStat implements Runnable{
     public  void addConnection(String srcIp, int srcPort, String dstIp, int dstPort, int protocol, Flag flag ) {
 
         String key = makeKey(srcIp, srcPort, dstIp, dstPort, protocol, flag);
-        if( srvCountOrgMap.containsKey(key) ) {
-            int tmpCount = srvCountOrgMap.get(key);
-            srvCountOrgMap.put(key, tmpCount+1);
-        } else {
-            srvCountOrgMap.put(key, 1);
+
+        synchronized (srvCountOrgMap) {
+            if( srvCountOrgMap.containsKey(key) ) {
+                int tmpCount = srvCountOrgMap.get(key);
+                srvCountOrgMap.put(key, tmpCount+1);
+            } else {
+                srvCountOrgMap.put(key, 1);
+            }
         }
     }
     public  int getCount(String dstIp, int dstPort, int protocol) {
