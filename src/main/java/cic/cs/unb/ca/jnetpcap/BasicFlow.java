@@ -1,5 +1,7 @@
 package cic.cs.unb.ca.jnetpcap;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1312,7 +1314,8 @@ public class BasicFlow {
 				dump.append(this.getSrcIP()).append(separator);			//source ip
 				dump.append(this.getSrcPort()).append(separator);		//source port
 				dump.append(this.getDstIP()).append(separator);			//destination ip
-				dump.append(this.getDstPort());		//destination port
+				dump.append(this.getDstPort()).append(separator);		//destination port
+				dump.append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));		//logging time
 			}
 
 
