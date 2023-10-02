@@ -9,6 +9,11 @@ mvn install:install-file -Dfile=jnetpcap.jar -DgroupId=org.jnetpcap -DartifactId
 
 ## Run
 ### IntelliJ IDEA
+run exeNSLKDDFlowMeter
+```agsl
+sudo ./gradlew exeNSLKDDFlowMeter -PnetworkIF=wlo1
+```
+
 open a Terminal in the IDE
 ```
 //linux:
