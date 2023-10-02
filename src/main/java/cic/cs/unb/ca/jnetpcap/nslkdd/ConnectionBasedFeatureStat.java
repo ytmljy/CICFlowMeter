@@ -31,7 +31,7 @@ public class ConnectionBasedFeatureStat implements Runnable{
     public void run() {
         try {
             while( !Thread.interrupted() ) {
-                logger.info("ConnectionBasedFeatureStat-srvCountMap count:" + srvCountMap.size());
+                logger.info("ConnectionBasedFeatureStat-srvCountMap count:" + srvCountOrgMap.size());
                 Thread.sleep(this.monitorPeriod);
 
                 synchronized (srvCountOrgMap) {
