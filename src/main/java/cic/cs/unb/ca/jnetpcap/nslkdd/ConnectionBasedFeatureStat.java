@@ -6,20 +6,22 @@ import net.jodah.expiringmap.ExpiringMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class ConnectionBasedFeatureStat implements Runnable{
     public static final Logger logger = LoggerFactory.getLogger(ConnectionBasedFeatureStat.class);
+    private Map<String, Integer> srvCountOrgMap = null;
     private Map<String, Integer> srvCountMap = null;
-    private int checkConnectionCount = 100;
-    private long monitorPeriod = 1 * 10 * 1000L;
+    private int checkConnectionCount = 1000;
+    private long monitorPeriod = 1 * 1 * 1000L;
 
     public ConnectionBasedFeatureStat(int checkConnectionCount) {
         this.checkConnectionCount = checkConnectionCount;
 
-        srvCountMap = ExpiringMap.builder()
+        srvCountOrgMap = ExpiringMap.builder()
                 .maxSize(this.checkConnectionCount)
                 .expirationPolicy(ExpirationPolicy.CREATED)
                 .expiration(1, TimeUnit.DAYS)
@@ -31,6 +33,11 @@ public class ConnectionBasedFeatureStat implements Runnable{
             while( !Thread.interrupted() ) {
                 logger.info("ConnectionBasedFeatureStat-srvCountMap count:" + srvCountMap.size());
                 Thread.sleep(this.monitorPeriod);
+
+                synchronized (srvCountOrgMap) {
+                    srvCountMap = new HashMap<>();
+                    srvCountMap.putAll(srvCountOrgMap);
+                }
             }
         } catch (InterruptedException e) {
             logger.error("",e);
@@ -54,11 +61,13 @@ public class ConnectionBasedFeatureStat implements Runnable{
     public void addConnection(String srcIp, int srcPort, String dstIp, int dstPort, int protocol, Flag flag ) {
 
         String key = makeKey(srcIp, srcPort, dstIp, dstPort, protocol, flag);
-        if( srvCountMap.containsKey(key) ) {
-            int tmpCount = srvCountMap.get(key);
-            srvCountMap.put(key, tmpCount+1);
-        } else {
-            srvCountMap.put(key, 1);
+        synchronized (srvCountOrgMap) {
+            if( srvCountOrgMap.containsKey(key) ) {
+                int tmpCount = srvCountOrgMap.get(key);
+                srvCountOrgMap.put(key, tmpCount+1);
+            } else {
+                srvCountOrgMap.put(key, 1);
+            }
         }
     }
     public int getDstHostCount(String dstIp, int dstPort, int protocol) {
