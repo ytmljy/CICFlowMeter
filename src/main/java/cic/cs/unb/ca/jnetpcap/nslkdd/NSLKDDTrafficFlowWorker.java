@@ -43,57 +43,60 @@ public class NSLKDDTrafficFlowWorker implements FlowGenListener, Runnable {
 	}
 
 	public void run() {
-		
-		FlowGenerator   flowGen = new FlowGenerator(true,1 * 24 * 3600 * 1000L, 2*1000);
-		flowGen.addFlowListener(this);
-		int snaplen = 64 * 1024;//2048; // Truncate packet at this size
-		int promiscous = Pcap.MODE_PROMISCUOUS;
-		int timeout = 2 * 1000; // In milliseconds
-		StringBuilder errbuf = new StringBuilder();
-		Pcap pcap = Pcap.openLive(device, snaplen, promiscous, timeout, errbuf);
-		if (pcap == null) {
-			logger.info("open {} fail -> {}",device,errbuf.toString());
-            return;
-		}
+		try {
+            FlowGenerator   flowGen = new FlowGenerator(true,1 * 24 * 3600 * 1000L, 2*1000);
+            flowGen.addFlowListener(this);
+            int snaplen = 64 * 1024;//2048; // Truncate packet at this size
+            int promiscous = Pcap.MODE_PROMISCUOUS;
+            int timeout = 2 * 1000; // In milliseconds
+            StringBuilder errbuf = new StringBuilder();
+            Pcap pcap = Pcap.openLive(device, snaplen, promiscous, timeout, errbuf);
+            if (pcap == null) {
+                logger.info("open {} fail -> {}",device,errbuf.toString());
+                return;
+            }
 
-		PcapPacketHandler<String> jpacketHandler = (packet, user) -> {
+            PcapPacketHandler<String> jpacketHandler = (packet, user) -> {
 
-            /*
-             * BufferUnderflowException while decoding header
-             * that is because:
-             * 1.PCAP library is not multi-threaded
-             * 2.jNetPcap library is not multi-threaded
-             * 3.Care must be taken how packets or the data they referenced is used in multi-threaded environment
-             *
-             * typical rule:
-             * make new packet objects and perform deep copies of the data in PCAP buffers they point to
-             *
-             * but it seems not work
-             */
+                /*
+                 * BufferUnderflowException while decoding header
+                 * that is because:
+                 * 1.PCAP library is not multi-threaded
+                 * 2.jNetPcap library is not multi-threaded
+                 * 3.Care must be taken how packets or the data they referenced is used in multi-threaded environment
+                 *
+                 * typical rule:
+                 * make new packet objects and perform deep copies of the data in PCAP buffers they point to
+                 *
+                 * but it seems not work
+                 */
 
-            PcapPacket permanent = new PcapPacket(Type.POINTER);
-            packet.transferStateAndDataTo(permanent);
+                PcapPacket permanent = new PcapPacket(Type.POINTER);
+                packet.transferStateAndDataTo(permanent);
 
-            flowGen.addPacket(PacketReader.getBasicPacketInfo(permanent, true, false));
-        };
+                flowGen.addPacket(PacketReader.getBasicPacketInfo(permanent, true, false));
+            };
 
-        //FlowMgr.getInstance().setListenFlag(true);
-        logger.info("Pcap is listening...");
-        int ret = pcap.loop(Pcap.DISPATCH_BUFFER_FULL, jpacketHandler, device);
+            //FlowMgr.getInstance().setListenFlag(true);
+            logger.info("Pcap is listening...");
+            int ret = pcap.loop(Pcap.DISPATCH_BUFFER_FULL, jpacketHandler, device);
 
-		String str;
-        switch (ret) {
-            case 0:
-                str = "listening: " + device + " finished";
-                break;
-            case -1:
-                str = "listening: " + device + " error";
-                break;
-            case -2:
-                str = "stop listening: " + device;
-                break;
+            String str;
+            switch (ret) {
+                case 0:
+                    str = "listening: " + device + " finished";
+                    break;
+                case -1:
+                    str = "listening: " + device + " error";
+                    break;
+                case -2:
+                    str = "stop listening: " + device;
+                    break;
                 default:
                     str = String.valueOf(ret);
+            }
+        } catch(Exception ex) {
+            logger.error("", ex);
         }
 	}
 
@@ -122,7 +125,7 @@ public class NSLKDDTrafficFlowWorker implements FlowGenListener, Runnable {
         }
 
         String json = "{\"data\": [" + features.toString() + "]}";
-        String result = NSLKDDUtility.preditRequest("http://localhost:8081/dnnTest3", json);
+        String result = NSLKDDUtility.preditRequest("http://localhost:8000/dnnTest3", json);
 
         if( result != null )
             featureList[0] = result;

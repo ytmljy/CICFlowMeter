@@ -52,3 +52,24 @@ At the project root
 mvn package
 ```
 the jar file will be in the pathtoproject/CICFlowMeter/target
+
+## Packet Analyzer 실행 방법
+1. gpu-union 접속
+2. 네트워크 AI 실행
+```
+$ cd /home/gpu-union/src/intrusion-detection-systems/api
+$ uvicorn dnnFastApi:app
+```
+3. CIC Packe Analyzer 실행
+```
+$ cd /home/gpu-union/network_ai/CICFlowMeter
+$ sudo ./gradlew exeNSLKDDFlowMeter -PnetworkIF=wlo1
+```
+
+## Packet Analyzer 테스트를 위한 패킷 발생
+1. rnd1-union 접속
+2. 패킷 발생 시뮬레이터 실행
+```
+$ cd /home/rnd1-union/sim/network_sim
+$  
+```
