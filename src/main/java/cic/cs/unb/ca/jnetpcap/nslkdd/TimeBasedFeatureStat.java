@@ -36,8 +36,7 @@ public class TimeBasedFeatureStat implements Runnable{
 
                 try {
                     synchronized (srvCountOrgMap) {
-                        srvCountMap = new HashMap<>();
-                        srvCountMap.putAll(srvCountOrgMap);
+                        srvCountMap = new HashMap<>(srvCountOrgMap);
                     }
                 } catch (Exception ex) {
                     logger.error("",ex);
