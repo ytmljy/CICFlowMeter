@@ -34,9 +34,13 @@ public class ConnectionBasedFeatureStat implements Runnable{
                 logger.error("ConnectionBasedFeatureStat-srvCountMap count:" + srvCountOrgMap.size());
                 Thread.sleep(this.monitorPeriod);
 
-                synchronized (srvCountOrgMap) {
-                    srvCountMap = new HashMap<>();
-                    srvCountMap.putAll(srvCountOrgMap);
+                try {
+                    synchronized (srvCountOrgMap) {
+                        srvCountMap = new HashMap<>();
+                        srvCountMap.putAll(srvCountOrgMap);
+                    }
+                } catch (Exception ex) {
+                    logger.error("",ex);
                 }
             }
         } catch (InterruptedException e) {
@@ -59,6 +63,7 @@ public class ConnectionBasedFeatureStat implements Runnable{
     }
 
     public void addConnection(String srcIp, int srcPort, String dstIp, int dstPort, int protocol, Flag flag ) {
+        logger.error("addConnection  getDstHostCount {}_{}", dstIp, protocol);
 
         String key = makeKey(srcIp, srcPort, dstIp, dstPort, protocol, flag);
         synchronized (srvCountOrgMap) {
