@@ -32,7 +32,7 @@ public class TimeBasedFeatureStat implements Runnable{
     public void run() {
         try {
             while( !Thread.interrupted() ) {
-                logger.error("TimeBasedFeatureStat-srvCountMap count:" + srvCountOrgMap.size());
+                logger.debug("TimeBasedFeatureStat-srvCountMap count:" + srvCountOrgMap.size());
                 Thread.sleep(this.monitorPeriod);
 
                 try {

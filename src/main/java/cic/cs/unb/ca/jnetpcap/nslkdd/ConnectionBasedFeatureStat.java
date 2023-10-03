@@ -31,7 +31,7 @@ public class ConnectionBasedFeatureStat implements Runnable{
     public void run() {
         try {
             while( !Thread.interrupted() ) {
-                logger.error("ConnectionBasedFeatureStat-srvCountMap count:" + srvCountOrgMap.size());
+                logger.debug("ConnectionBasedFeatureStat-srvCountMap count:" + srvCountOrgMap.size());
                 Thread.sleep(this.monitorPeriod);
 
                 try {
@@ -62,7 +62,7 @@ public class ConnectionBasedFeatureStat implements Runnable{
     }
 
     public void addConnection(String srcIp, int srcPort, String dstIp, int dstPort, int protocol, Flag flag ) {
-        logger.error("addConnection  getDstHostCount {}_{}", dstIp, protocol);
+        logger.debug("addConnection  getDstHostCount {}_{}", dstIp, protocol);
 
         String key = makeKey(srcIp, srcPort, dstIp, dstPort, protocol, flag);
         synchronized (srvCountOrgMap) {
@@ -76,7 +76,7 @@ public class ConnectionBasedFeatureStat implements Runnable{
     }
     public int getDstHostCount(String dstIp, int dstPort, int protocol) {
         int count = srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1).mapToInt( key -> srvCountMap.get(key)).sum();
-        logger.error("srvCountMap{} getDstHostCount {}_{}: {}", srvCountMap.size(), dstIp, protocol, count);
+        logger.debug("srvCountMap{} getDstHostCount {}_{}: {}", srvCountMap.size(), dstIp, protocol, count);
         return count;
     }
     public int getDstHostSrvCount(String dstIp, int dstPort, int protocol) {
@@ -89,7 +89,7 @@ public class ConnectionBasedFeatureStat implements Runnable{
         double dstHostCount = (double)this.getDstHostCount(dstIp, dstPort, protocol);
         double dstHostSrvCount = (double)this.getDstHostSameSrvCount(dstIp, dstPort, protocol);
 
-        logger.info("dstHostCount:{}, dstHostSrvCount:{} rate:{}", dstHostCount, dstHostSrvCount, dstHostCount == 0 ? 0 : dstHostCount < dstHostSrvCount ? 1 : (dstHostSrvCount / dstHostCount));
+        logger.debug("dstHostCount:{}, dstHostSrvCount:{} rate:{}", dstHostCount, dstHostSrvCount, dstHostCount == 0 ? 0 : dstHostCount < dstHostSrvCount ? 1 : (dstHostSrvCount / dstHostCount));
         return dstHostCount == 0 ? 0 : dstHostCount < dstHostSrvCount ? 1 : (dstHostSrvCount / dstHostCount);
     }
     public int getDstHostDiffSrvCount(String dstIp, int dstPort, int protocol) {
