@@ -14,7 +14,7 @@ public class TimeBasedFeatureStat implements Runnable{
     private Map<String, Integer> srvCountOrgMap = null;
     Map<String, Integer> srvCountMap = null;
 
-    private int checkDuration = 2;
+    private int checkDuration = 1 * 60;
     private long monitorPeriod = 1 * 1 * 1000L;
 
     public TimeBasedFeatureStat(int checkDuration) {

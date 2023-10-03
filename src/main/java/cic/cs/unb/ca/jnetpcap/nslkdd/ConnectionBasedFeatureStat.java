@@ -15,7 +15,7 @@ public class ConnectionBasedFeatureStat implements Runnable{
     public static final Logger logger = LoggerFactory.getLogger(ConnectionBasedFeatureStat.class);
     private Map<String, Integer> srvCountOrgMap = null;
     private Map<String, Integer> srvCountMap = null;
-    private int checkConnectionCount = 1000;
+    private int checkConnectionCount = 10000;
     private long monitorPeriod = 1 * 1 * 1000L;
 
     public ConnectionBasedFeatureStat(int checkConnectionCount) {
