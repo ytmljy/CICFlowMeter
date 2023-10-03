@@ -23,7 +23,8 @@ public class TimeBasedFeatureStat implements Runnable{
         srvCountOrgMap = ExpiringMap.builder()
                 .maxSize(10000)
                 .expirationPolicy(ExpirationPolicy.CREATED)
-                .expiration(this.checkDuration, TimeUnit.SECONDS)
+//                .expiration(this.checkDuration, TimeUnit.SECONDS)
+                .expiration(this.checkDuration, TimeUnit.HOURS)
                 .build();
     }
 
