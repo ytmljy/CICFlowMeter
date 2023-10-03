@@ -72,7 +72,7 @@ public class ConnectionBasedFeatureStat implements Runnable{
     }
     public int getDstHostCount(String dstIp, int dstPort, int protocol) {
         int count = srvCountMap.keySet().stream().filter(key -> key.startsWith("P="+protocol) && key.indexOf("DI="+dstIp) > -1).mapToInt( key -> srvCountMap.get(key)).sum();
-        logger.error("getDstHostCount {}_{}_{}: {}", dstIp, dstPort, protocol, count);
+        logger.error("getDstHostCount {}_{}: {}", dstIp, protocol, count);
         return count;
     }
     public int getDstHostSrvCount(String dstIp, int dstPort, int protocol) {
