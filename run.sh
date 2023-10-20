@@ -1,1 +1,1 @@
-sudo  java -Dorg.gradle.appname=gradlew -classpath /home/gpu-union/network_ai/CICFlowMeter/gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain exeNSLKDDFlowMeter -PnetworkIF=wlo1
+sudo ./gradlew exeNSLKDDFlowMeter  --args='wlo1'
