@@ -73,7 +73,7 @@ public class FlowGenerator {
 		Thread timeBasedFeatureThread = new Thread(timeBasedFeatureStat);
 		timeBasedFeatureThread.start();
 
-		connectionBasedFeatureStat = new ConnectionBasedFeatureStat(100);
+		connectionBasedFeatureStat = new ConnectionBasedFeatureStat(10000);
 		Thread hostBasedFeatureThread = new Thread(connectionBasedFeatureStat);
 		hostBasedFeatureThread.start();
 	}

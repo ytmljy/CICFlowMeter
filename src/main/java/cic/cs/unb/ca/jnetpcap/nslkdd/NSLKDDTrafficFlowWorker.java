@@ -112,7 +112,7 @@ public class NSLKDDTrafficFlowWorker implements FlowGenListener, Runnable {
         System.out.print(console);
 	}
 
-    private String predictFlow(String flowDump) {
+    private String predictFlowPost(String flowDump) {
 
         String[] featureList = flowDump.split(",");
 
@@ -125,7 +125,35 @@ public class NSLKDDTrafficFlowWorker implements FlowGenListener, Runnable {
         }
 
         String json = "{\"data\": [" + features.toString() + "]}";
-        String result = NSLKDDUtility.preditRequest("http://localhost:8080/dnnTest3", json);
+        String result = NSLKDDUtility.preditRequestPost("http://localhost:8080/dnnTest3", json);
+
+        if( result != null )
+            featureList[0] = result;
+
+        StringBuffer featuresResult = new StringBuffer();
+        for( int i=0; i < featureList.length; i++ ) {
+            if( i < featureList.length - 1 )
+                featuresResult.append(featureList[i]).append(",");
+            else
+                featuresResult.append(featureList[i]);
+        }
+
+        return featuresResult.toString();
+    }
+
+    private String predictFlow(String flowDump) {
+
+        String[] featureList = flowDump.split(",");
+
+        StringBuffer features = new StringBuffer();
+        for( int i=0; i < 42; i++ ) {
+            if( i < 41 )
+                features.append(featureList[i]).append(",");
+            else
+                features.append(featureList[i]);
+        }
+
+        String result = NSLKDDUtility.preditRequest("http://localhost:8080/dnnTest4", features.toString() );
 
         if( result != null )
             featureList[0] = result;
