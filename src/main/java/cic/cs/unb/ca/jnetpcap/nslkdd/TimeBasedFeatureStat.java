@@ -14,7 +14,7 @@ public class TimeBasedFeatureStat implements Runnable{
     private Map<String, Integer> srvCountOrgMap = null;
     Map<String, Integer> srvCountMap = null;
 
-    private int checkDuration = 2;
+    private int checkDuration = 1 * 60;
     private long monitorPeriod = 1 * 1 * 1000L;
 
     public TimeBasedFeatureStat(int checkDuration) {
@@ -23,7 +23,8 @@ public class TimeBasedFeatureStat implements Runnable{
         srvCountOrgMap = ExpiringMap.builder()
                 .maxSize(10000)
                 .expirationPolicy(ExpirationPolicy.CREATED)
-                .expiration(this.checkDuration, TimeUnit.SECONDS)
+//                .expiration(this.checkDuration, TimeUnit.SECONDS)
+                .expiration(this.checkDuration, TimeUnit.HOURS)
                 .build();
     }
 
@@ -31,12 +32,15 @@ public class TimeBasedFeatureStat implements Runnable{
     public void run() {
         try {
             while( !Thread.interrupted() ) {
-                logger.info("TimeBasedFeatureStat-srvCountMap count:" + srvCountOrgMap.size());
+                logger.debug("TimeBasedFeatureStat-srvCountMap count:" + srvCountOrgMap.size());
                 Thread.sleep(this.monitorPeriod);
 
-                synchronized (srvCountOrgMap) {
-                    srvCountMap = new HashMap<>();
-                    srvCountMap.putAll(srvCountOrgMap);
+                try {
+                    synchronized (srvCountOrgMap) {
+                        srvCountMap = new HashMap<>(srvCountOrgMap);
+                    }
+                } catch (Exception ex) {
+                    logger.error("",ex);
                 }
             }
         } catch (InterruptedException e) {

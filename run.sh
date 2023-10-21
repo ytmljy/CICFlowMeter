@@ -1,0 +1,1 @@
+sudo ./gradlew exeNSLKDDFlowMeter  --args='wlo1'

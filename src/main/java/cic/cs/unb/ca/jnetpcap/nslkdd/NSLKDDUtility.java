@@ -1,6 +1,7 @@
 package cic.cs.unb.ca.jnetpcap.nslkdd;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -461,7 +462,7 @@ public class NSLKDDUtility {
                 return ECHOREPLY;
         }
     }
-    public static String preditRequest(String url, String jsonData) {
+    public static String preditRequestPost(String url, String jsonData) {
 
         CloseableHttpClient client = null;
         BufferedReader in = null;
@@ -484,6 +485,61 @@ public class NSLKDDUtility {
 
             // 실행
             CloseableHttpResponse httpresponse = client.execute(httpPost);
+
+            // 결과 수신
+            InputStream inputStream = (InputStream)httpresponse.getEntity().getContent();
+
+            String inputLine = null;
+            in = new BufferedReader(new InputStreamReader(inputStream, "utf-8"));
+
+            while((inputLine = in.readLine()) != null) {
+                result.append(inputLine);
+            }
+
+            JSONParser parser = new JSONParser();
+            JSONObject json = (JSONObject) parser.parse(result.toString());
+            JSONObject resultJson = (JSONObject)json.get("result");
+            String pred = (String)resultJson.get("pred");
+
+            return pred;
+        }catch(IOException ioe) {
+            logger.error("", ioe);
+        } catch (ParseException e) {
+            logger.error("", e);
+        } finally {
+            if(in != null) {
+                try {
+                    in.close();
+                } catch(IOException ioe) {  }
+            }
+        }
+
+        return null;
+    }
+
+    public static String preditRequest(String url, String text) {
+
+        CloseableHttpClient client = null;
+        BufferedReader in = null;
+        StringBuffer result = new StringBuffer();
+
+        try {
+            client = HttpClients.createDefault();
+            HttpGet httpGet = new HttpGet(url+"?data="+text);
+
+            // 헤더 설정이 필요한 경우
+            //httpPost.setHeader("header_key", "header_value");
+
+            // JSON 데이터를 추가.
+//            httpPost.setEntity(new StringEntity(jsonData, ContentType.APPLICATION_JSON));
+
+            // Key / Value 속성으로 할 경우
+            // List<NameValuePair> params = new ArrayList<NameValuePair>();
+            // params.add(new BasicNameValuePair("key", "value"));
+            // httpPost.setEntity(new UrlEncodedFormEntity(params));
+
+            // 실행
+            CloseableHttpResponse httpresponse = client.execute(httpGet);
 
             // 결과 수신
             InputStream inputStream = (InputStream)httpresponse.getEntity().getContent();
