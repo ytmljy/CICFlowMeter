@@ -277,6 +277,8 @@ public class BasicPacketInfo {
 		for( int i=0; i<payload.length; i++ ) {
 			if( payload[i] > 0x1F && payload[i] < 0x80 ) {
 				sb.append(payload[i]);
+			} else {
+				sb.append(" ");
 			}
 		}
 		return sb.toString();
