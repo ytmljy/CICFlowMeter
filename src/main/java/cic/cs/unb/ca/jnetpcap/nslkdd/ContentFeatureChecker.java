@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ContentFeatureChecker {
 
@@ -71,7 +72,13 @@ public class ContentFeatureChecker {
                     content.getPayloadStr().endsWith("#")
             ).count();
             if( count >= 1 ) {
-                logger.info("@@@@ isRootShell count:" + count);
+                List<String> result = forward.stream().filter(content -> content.getPayloadStr() != null &&
+                        content.getPayloadStr().endsWith("#")
+                ).map( content -> content.getPayloadStr().concat("\r\n")
+                ).collect(Collectors.toList());
+
+                logger.error("@@@ result:" + result);
+
                 return 1;
             }
         }
