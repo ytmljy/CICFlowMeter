@@ -8,6 +8,8 @@ public class ContentFeatureChecker {
 
     public static long getNumFailedLogins(Service service, List<BasicPacketInfo> forward) {
         if( service == Service.SRV_TELNET ) {
+            if( forward == null )
+                return 0;
             return forward.stream().filter(content -> content.getPayloadStr().contains("Login incorrect")).count();
         }
         return 0;
@@ -15,6 +17,9 @@ public class ContentFeatureChecker {
 
     public static int isLogin(Service service, List<BasicPacketInfo> forward) {
         if( service == Service.SRV_TELNET ) {
+            if( forward == null )
+                return 0;
+
             long loginCnt = forward.stream().filter(content -> content.getPayloadStr().contains("login: ")).count();
             long passwordCnt = forward.stream().filter(content -> content.getPayloadStr().contains("Password: ")).count();
             long welcomeCnt = forward.stream().filter(content -> content.getPayloadStr().contains("Welcome: ")).count();
@@ -29,6 +34,9 @@ public class ContentFeatureChecker {
 
     public static long getNumCompromised(Service service, List<BasicPacketInfo> forward) {
         if( service == Service.SRV_TELNET ) {
+            if( forward == null )
+                return 0;
+
             return forward.stream().filter(content -> content.getPayloadStr().contains("not found") || content.getPayloadStr().contains("such file or directory") ).count();
         }
         return 0;
@@ -36,6 +44,9 @@ public class ContentFeatureChecker {
 
     public static long getNumRoot(Service service, List<BasicPacketInfo> backword) {
         if( service == Service.SRV_TELNET ) {
+            if( backword == null )
+                return 0;
+
             return backword.stream().filter(content -> content.getPayloadStr().contains("root") ).count();
         }
         return 0;
@@ -43,6 +54,9 @@ public class ContentFeatureChecker {
     // ~#
     public static int isRootShell(Service service, List<BasicPacketInfo> forward) {
         if( service == Service.SRV_TELNET ) {
+            if( forward == null )
+                return 0;
+
             long count = forward.stream().filter(content -> content.getPayloadStr().endsWith("~#") ).count();
             if( count >= 1 )
                 return 1;
@@ -51,6 +65,9 @@ public class ContentFeatureChecker {
     }
     public static int isSuAttempted(Service service, List<BasicPacketInfo> backword) {
         if( service == Service.SRV_TELNET ) {
+            if( backword == null )
+                return 0;
+
             long count = backword.stream().filter(content -> content.getPayloadStr().contains("su ") ||
                             content.getPayloadStr().contains("su -") ||
                             content.getPayloadStr().contains("su ")
@@ -64,6 +81,9 @@ public class ContentFeatureChecker {
     // 'vi', 'cp', 'chmod', 'rm' 및 'cat
     public static long getNumFileCreation(Service service, List<BasicPacketInfo> forward) {
         if( service == Service.SRV_TELNET ) {
+            if( forward == null )
+                return 0;
+
             return forward.stream().filter(content -> content.getPayloadStr().contains("vi ") ||
                     content.getPayloadStr().contains("cp ") ||
                     content.getPayloadStr().contains("chmod ") ||
@@ -76,6 +96,9 @@ public class ContentFeatureChecker {
 
     public static long getNumShells(Service service, List<BasicPacketInfo> forward) {
         if( service == Service.SRV_TELNET ) {
+            if( forward == null )
+                return 0;
+
             return forward.stream().filter(content -> content.getPayloadStr().contains("‘/bin/sh") ||
                     content.getPayloadStr().contains("‘/bin/bash")
             ).count();
