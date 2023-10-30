@@ -1,10 +1,15 @@
 package cic.cs.unb.ca.jnetpcap.nslkdd;
 
+import cic.cs.unb.ca.jnetpcap.BasicFlow;
 import cic.cs.unb.ca.jnetpcap.BasicPacketInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class ContentFeatureChecker {
+
+    public static final Logger logger = LoggerFactory.getLogger(ContentFeatureChecker.class);
 
     public static long getNumFailedLogins(Service service, List<BasicPacketInfo> forward) {
         if( service == Service.SRV_TELNET ) {
@@ -65,8 +70,10 @@ public class ContentFeatureChecker {
             long count = forward.stream().filter(content -> content.getPayloadStr() != null &&
                     content.getPayloadStr().endsWith("#")
             ).count();
-            if( count >= 1 )
+            if( count >= 1 ) {
+                logger.info("@@@@ isRootShell count:" + count);
                 return 1;
+            }
         }
         return 0;
     }
