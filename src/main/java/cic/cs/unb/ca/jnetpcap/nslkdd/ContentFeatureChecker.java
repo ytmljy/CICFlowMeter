@@ -83,7 +83,7 @@ public class ContentFeatureChecker {
                 ).map( content -> content.getPayloadStr().concat("\r\n")
                 ).collect(Collectors.toList());
 
-                logger.error("@@@ result:" + result);
+                logger.error("@@@ isRootShell:" + result);
 
                 return 1;
             }
@@ -102,7 +102,7 @@ public class ContentFeatureChecker {
                             content.getPayloadStr().contains("su ")
                             )
                     ).count();
-            if( count > 1 )
+            if( count >= 1 )
                 return 1;
         }
         return 0;
@@ -114,14 +114,20 @@ public class ContentFeatureChecker {
             if( forward == null )
                 return 0;
 
+            List<String> result = forward.stream().filter(content -> content.getPayloadStr() != null
+            ).map( content -> content.getPayloadStr().concat("\r\n")
+            ).collect(Collectors.toList());
+
+            logger.error("@@@ getNumFileCreation:" + result);
+
             return forward.stream().filter(content ->  content.getPayloadStr() != null &&
-                    (
-                        content.getPayloadStr().contains("vi ") ||
-                        content.getPayloadStr().contains("cp ") ||
-                        content.getPayloadStr().contains("chmod ") ||
-                        content.getPayloadStr().contains("rm ") ||
-                        content.getPayloadStr().contains("cat ")
-                    )
+                (
+                    content.getPayloadStr().contains("vi ") ||
+                    content.getPayloadStr().contains("cp ") ||
+                    content.getPayloadStr().contains("chmod ") ||
+                    content.getPayloadStr().contains("rm ") ||
+                    content.getPayloadStr().contains("cat ")
+                )
             ).count();
         }
         return 0;
