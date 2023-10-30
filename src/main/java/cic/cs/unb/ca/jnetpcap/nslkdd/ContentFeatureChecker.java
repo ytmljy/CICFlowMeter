@@ -69,11 +69,12 @@ public class ContentFeatureChecker {
                 return 0;
 
             long count = forward.stream().filter(content -> content.getPayloadStr() != null &&
-                    content.getPayloadStr().endsWith("#")
+                    content.getPayloadStr().startsWith("root@") && content.getPayloadStr().endsWith("#")
             ).count();
             if( count >= 1 ) {
                 List<String> result = forward.stream().filter(content -> content.getPayloadStr() != null &&
-                        content.getPayloadStr().endsWith("#")
+                        content.getPayloadStr().endsWith("#") &&
+                        content.getPayloadStr().contains("root@")
                 ).map( content -> content.getPayloadStr().concat("\r\n")
                 ).collect(Collectors.toList());
 
