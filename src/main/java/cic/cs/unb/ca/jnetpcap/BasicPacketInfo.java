@@ -270,10 +270,16 @@ public class BasicPacketInfo {
 
 
 	public String getPayloadStr() {
-		if( payload != null && payload.length > 0)
-			return new String(payload);
+		if( payload == null || payload.length == 0)
+			return null;
 
-		return null;
+		StringBuffer sb = new StringBuffer();
+		for( int i=0; i<payload.length; i++ ) {
+			if( payload[i] > 0x1F && payload[i] < 0x80 ) {
+				sb.append(payload[i]);
+			}
+		}
+		return sb.toString();
 	}
 
 	public void setPayload(byte[] payload) {this.payload = payload;}
