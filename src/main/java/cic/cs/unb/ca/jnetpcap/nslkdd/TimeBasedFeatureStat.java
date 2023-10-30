@@ -14,7 +14,7 @@ public class TimeBasedFeatureStat implements Runnable{
     private Map<String, Integer> srvCountOrgMap = null;
     Map<String, Integer> srvCountMap = null;
 
-    private int checkDuration = 1 * 60;
+    private int checkDuration = 1 * 2;
     private long monitorPeriod = 1 * 1 * 1000L;
 
     public TimeBasedFeatureStat(int checkDuration) {
@@ -23,8 +23,8 @@ public class TimeBasedFeatureStat implements Runnable{
         srvCountOrgMap = ExpiringMap.builder()
                 .maxSize(10000)
                 .expirationPolicy(ExpirationPolicy.CREATED)
-//                .expiration(this.checkDuration, TimeUnit.SECONDS)
-                .expiration(this.checkDuration, TimeUnit.HOURS)
+                .expiration(this.checkDuration, TimeUnit.SECONDS)
+//                .expiration(this.checkDuration, TimeUnit.HOURS)
                 .build();
     }
 
