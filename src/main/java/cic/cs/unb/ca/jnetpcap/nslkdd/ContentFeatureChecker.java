@@ -63,7 +63,7 @@ public class ContentFeatureChecker {
                 return 0;
 
             long count = forward.stream().filter(content -> content.getPayloadStr() != null &&
-                    content.getPayloadStr().endsWith("~#")
+                    content.getPayloadStr().endsWith("#")
             ).count();
             if( count >= 1 )
                 return 1;
