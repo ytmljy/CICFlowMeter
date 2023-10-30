@@ -30,6 +30,7 @@ public class ContentFeatureChecker {
             long passwordCnt = forward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("Password: ")).count();
             long welcomeCnt = forward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("Welcome: ")).count();
 
+            logger.error("@@@ isLogin loginCnt:"+loginCnt+",passwordCnt:"+passwordCnt+", welcomeCnt:"+welcomeCnt);
             if( loginCnt >= 1 && passwordCnt >= 1 && welcomeCnt >= 1 )
                 return 1;
             else
