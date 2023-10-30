@@ -276,7 +276,7 @@ public class BasicPacketInfo {
 		StringBuffer sb = new StringBuffer();
 		for( int i=0; i<payload.length; i++ ) {
 			if( payload[i] > 0x1F && payload[i] < 0x80 ) {
-				sb.append((byte)payload[i]);
+				sb.append((char) payload[i]);
 			} else {
 				sb.append(" ");
 			}
