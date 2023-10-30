@@ -436,6 +436,10 @@ public class PacketReader {
 					packetInfo.setFlagRST(protocol.getTcp().flags_RST());
 					packetInfo.setPayloadBytes(protocol.getTcp().getPayloadLength());
 					packetInfo.setHeaderBytes(protocol.getTcp().getHeaderLength());
+
+					packetInfo.setPayload(protocol.getTcp().getPayload());
+
+
 				}else if(packet.hasHeader(protocol.getUdp())) {
 					packetInfo.setSrcPort(protocol.getUdp().source());
 					packetInfo.setDstPort(protocol.getUdp().destination());

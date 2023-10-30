@@ -7,10 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import cic.cs.unb.ca.jnetpcap.nslkdd.Flag;
-import cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDConst;
-import cic.cs.unb.ca.jnetpcap.nslkdd.NSLKDDUtility;
-import cic.cs.unb.ca.jnetpcap.nslkdd.Service;
+import cic.cs.unb.ca.jnetpcap.nslkdd.*;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.jnetpcap.packet.format.FormatUtils;
 import org.slf4j.Logger;
@@ -1271,18 +1268,18 @@ public class BasicFlow {
 
 			//Content Featureres (Total: 13)
 			dump.append(0).append(separator);         								//10 Hot
-			dump.append(0).append(separator);         								//11 Hot
-			dump.append(0).append(separator);         								//12 Hot
-			dump.append(0).append(separator);         								//13 Hot
-			dump.append(0).append(separator);         								//14 Hot
-			dump.append(0).append(separator);         								//15 Hot
-			dump.append(0).append(separator);         								//16 Hot
-			dump.append(0).append(separator);         								//17 Hot
-			dump.append(0).append(separator);         								//18 Hot
-			dump.append(0).append(separator);         								//19 Hot
-			dump.append(0).append(separator);         								//20 Hot
-			dump.append(0).append(separator);         								//21 Hot
-			dump.append(0).append(separator);         								//22 Hot
+			dump.append(ContentFeatureChecker.getNumFailedLogins(this.service, this.forward)).append(separator);	//11 Num Failed Logins
+			dump.append(ContentFeatureChecker.isLogin(this.service, this.forward)).append(separator);         		//12 Logged In
+			dump.append(ContentFeatureChecker.getNumCompromised(this.service, this.forward)).append(separator);		//13 Num Compromised
+			dump.append(ContentFeatureChecker.isRootShell(this.service, this.forward)).append(separator);      		//14 Root Shell
+			dump.append(ContentFeatureChecker.isSuAttempted(this.service, this.backward)).append(separator);        //15 Su Attempted
+			dump.append(ContentFeatureChecker.getNumRoot(this.service,this.backward)).append(separator);         	//16 Num Root
+			dump.append(ContentFeatureChecker.getNumFileCreation(this.service, this.backward)).append(separator);   //17 Num File Creations
+			dump.append(ContentFeatureChecker.getNumShells(this.service, this.backward)).append(separator);  		//18 Num Shells
+			dump.append(0).append(separator);         								//19 Num Access Files
+			dump.append(0).append(separator);         								//20 Num Outbound Cmds
+			dump.append(ContentFeatureChecker.isHostLogin(this.service, this.backward)).append(separator);         								//21 Is Hot Logins
+			dump.append(0).append(separator);         								//22 Is Guest Login
 
 			//Time-Based Features (Total: 9)
 			dump.append(FlowGenerator.timeBasedFeatureStat.getCount(this.getDstIP(), this.getDstPort(), this.protocol)).append(separator);	//23 Count

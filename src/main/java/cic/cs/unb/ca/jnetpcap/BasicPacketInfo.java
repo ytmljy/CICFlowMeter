@@ -31,6 +31,8 @@ public class BasicPacketInfo {
 	private int icmpCode=0;
 	private int icmpType=0;
 
+	private byte[] payload;
+
 	public BasicPacketInfo(byte[] src, byte[] dst, int srcPort, int dstPort,
 			int protocol, long timeStamp, IdGenerator generator) {
 		super();
@@ -263,4 +265,18 @@ public class BasicPacketInfo {
 	public int getIcmpType() {return icmpType;}
 
 	public void setIcmpType(int icmpType) {this.icmpType = icmpType;}
+
+	public byte[] getPayload() {return payload;}
+
+
+	public String getPayloadStr() {
+		if( payload != null && payload.length > 0)
+			return new String(payload);
+
+		return null;
+	}
+
+	public void setPayload(byte[] payload) {this.payload = payload;}
+
+
 }
