@@ -114,11 +114,12 @@ public class ContentFeatureChecker {
             if( forward == null )
                 return 0;
 
-            List<String> result = forward.stream().filter(content -> content.getPayloadStr() != null
-            ).map( content -> content.getPayloadStr().concat("\r\n")
+            final String forwardText = "";
+            List<String> forwardList = forward.stream().filter(content -> content.getPayloadStr() != null
+            ).map( content -> forwardText.concat(content.getPayloadStr())
             ).collect(Collectors.toList());
 
-            logger.error("@@@ getNumFileCreation:" + result);
+            logger.error("@@@ getNumFileCreation forwardText:" + forwardText);
 
             return forward.stream().filter(content ->  content.getPayloadStr() != null &&
                 (
