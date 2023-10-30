@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ContentFeatureChecker {
 
@@ -86,11 +87,12 @@ public class ContentFeatureChecker {
                 return 0;
 
             long count = forward.stream().filter(content -> content.getPayloadStr() != null &&
-                            (
-                            content.getPayloadStr().contains("su ") ||
-                            content.getPayloadStr().contains("su -") ||
-                            content.getPayloadStr().contains("su ")
-                            )
+                    (
+                        content.getPayloadStr().contains("su ") ||
+                        content.getPayloadStr().contains("su -") ||
+                        content.getPayloadStr().contains("su ") ||
+                                content.getPayloadStr().contains("su - root")
+                    )
                     ).count();
             if( count >= 1 )
                 return 1;
@@ -104,18 +106,18 @@ public class ContentFeatureChecker {
             if( forward == null )
                 return 0;
 
-//            String forwardText = forward.stream().filter(content -> content.getPayloadStr() != null
-//            ).map( content -> content.getPayloadStr()
-//            ).collect(Collectors.joining());
-            StringBuffer sb = new StringBuffer();
-            for( int i=0; i<forward.size();i++ ) {
-                if( forward.get(i).getPayloadStr() != null ) {
-                    sb.append(forward.get(i).getPayloadStr());
-                    logger.error("@@@ getNumFileCreation index[" + i + "]: " + forward.get(i).getPayloadStr());
-                }
-            }
+            String forwardText = forward.stream().filter(content -> content.getPayloadStr() != null
+            ).map( content -> content.getPayloadStr()
+            ).collect( Collectors.joining());
+//            StringBuffer sb = new StringBuffer();
+//            for( int i=0; i<forward.size();i++ ) {
+//                if( forward.get(i).getPayloadStr() != null ) {
+//                    sb.append(forward.get(i).getPayloadStr());
+//                    logger.error("@@@ getNumFileCreation index[" + i + "]: " + forward.get(i).getPayloadStr());
+//                }
+//            }
 
-            logger.error("@@@ getNumFileCreation forwardText:" + sb.toString());
+            logger.error("@@@ getNumFileCreation forwardText:" + forwardText);
 
             return forward.stream().filter(content ->  content.getPayloadStr() != null &&
                 (
