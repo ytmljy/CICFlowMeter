@@ -109,8 +109,10 @@ public class ContentFeatureChecker {
 //            ).collect(Collectors.joining());
             StringBuffer sb = new StringBuffer();
             for( int i=0; i<forward.size();i++ ) {
-                sb.append(forward.get(i).getPayloadStr());
-                logger.error("@@@ getNumFileCreation index["+i+"]: " + forward.get(i).getPayloadStr());
+                if( forward.get(i).getPayloadStr() != null ) {
+                    sb.append(forward.get(i).getPayloadStr());
+                    logger.error("@@@ getNumFileCreation index[" + i + "]: " + forward.get(i).getPayloadStr());
+                }
             }
 
             logger.error("@@@ getNumFileCreation forwardText:" + sb.toString());
