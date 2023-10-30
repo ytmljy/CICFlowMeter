@@ -2,6 +2,7 @@ package cic.cs.unb.ca.jnetpcap.nslkdd;
 
 import cic.cs.unb.ca.jnetpcap.BasicFlow;
 import cic.cs.unb.ca.jnetpcap.BasicPacketInfo;
+import com.sun.org.apache.xpath.internal.operations.String;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,14 +78,6 @@ public class ContentFeatureChecker {
                     content.getPayloadStr().startsWith("root@") && content.getPayloadStr().endsWith("#")
             ).count();
             if( count >= 1 ) {
-                List<String> result = backward.stream().filter(content -> content.getPayloadStr() != null &&
-                        content.getPayloadStr().endsWith("#") &&
-                        content.getPayloadStr().contains("root@")
-                ).map( content -> content.getPayloadStr().concat("\r\n")
-                ).collect(Collectors.toList());
-
-                logger.error("@@@ isRootShell:" + result);
-
                 return 1;
             }
         }
@@ -114,11 +107,15 @@ public class ContentFeatureChecker {
             if( forward == null )
                 return 0;
 
-            String forwardText = forward.stream().filter(content -> content.getPayloadStr() != null
-            ).map( content -> content.getPayloadStr()
-            ).collect(Collectors.joining());
+//            String forwardText = forward.stream().filter(content -> content.getPayloadStr() != null
+//            ).map( content -> content.getPayloadStr()
+//            ).collect(Collectors.joining());
+            StringBuffer sb = new StringBuffer();
+            for( int i=0; i<forward.size();i++ ) {
+                sb.append(forward.get(i).getPayloadStr());
+            }
 
-            logger.error("@@@ getNumFileCreation forwardText:" + forwardText);
+            logger.error("@@@ getNumFileCreation forwardText:" + sb.toString());
 
             return forward.stream().filter(content ->  content.getPayloadStr() != null &&
                 (
