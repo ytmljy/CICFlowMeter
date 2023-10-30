@@ -28,7 +28,7 @@ public class ContentFeatureChecker {
 
             long loginCnt = backward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("login: ")).count();
             long passwordCnt = backward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("Password: ")).count();
-            long welcomeCnt = backward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("Welcome: ")).count();
+            long welcomeCnt = backward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("Welcome ")).count();
 
             logger.error("@@@ isLogin loginCnt:"+loginCnt+",passwordCnt:"+passwordCnt+", welcomeCnt:"+welcomeCnt);
             if( loginCnt >= 1 && passwordCnt >= 1 && welcomeCnt >= 1 )
