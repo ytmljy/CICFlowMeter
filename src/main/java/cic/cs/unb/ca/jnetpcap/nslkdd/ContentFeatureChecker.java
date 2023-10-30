@@ -12,23 +12,23 @@ public class ContentFeatureChecker {
 
     public static final Logger logger = LoggerFactory.getLogger(ContentFeatureChecker.class);
 
-    public static long getNumFailedLogins(Service service, List<BasicPacketInfo> forward) {
+    public static long getNumFailedLogins(Service service, List<BasicPacketInfo> backward) {
         if( service == Service.SRV_TELNET ) {
-            if( forward == null )
+            if( backward == null )
                 return 0;
-            return forward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("Login incorrect")).count();
+            return backward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("Login incorrect")).count();
         }
         return 0;
     }
 
-    public static int isLogin(Service service, List<BasicPacketInfo> forward) {
+    public static int isLogin(Service service, List<BasicPacketInfo> backward) {
         if( service == Service.SRV_TELNET ) {
-            if( forward == null )
+            if( backward == null )
                 return 0;
 
-            long loginCnt = forward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("login: ")).count();
-            long passwordCnt = forward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("Password: ")).count();
-            long welcomeCnt = forward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("Welcome: ")).count();
+            long loginCnt = backward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("login: ")).count();
+            long passwordCnt = backward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("Password: ")).count();
+            long welcomeCnt = backward.stream().filter(content -> content.getPayloadStr() != null && content.getPayloadStr().contains("Welcome: ")).count();
 
             logger.error("@@@ isLogin loginCnt:"+loginCnt+",passwordCnt:"+passwordCnt+", welcomeCnt:"+welcomeCnt);
             if( loginCnt >= 1 && passwordCnt >= 1 && welcomeCnt >= 1 )
@@ -39,12 +39,12 @@ public class ContentFeatureChecker {
         return 0;
     }
 
-    public static long getNumCompromised(Service service, List<BasicPacketInfo> forward) {
+    public static long getNumCompromised(Service service, List<BasicPacketInfo> backward) {
         if( service == Service.SRV_TELNET ) {
-            if( forward == null )
+            if( backward == null )
                 return 0;
 
-            return forward.stream().filter(content -> content.getPayloadStr() != null &&
+            return backward.stream().filter(content -> content.getPayloadStr() != null &&
                     (   content.getPayloadStr().contains("not found") ||
                         content.getPayloadStr().contains("such file or directory"))
             ).count();
@@ -52,28 +52,32 @@ public class ContentFeatureChecker {
         return 0;
     }
 
-    public static long getNumRoot(Service service, List<BasicPacketInfo> backword) {
-        if( service == Service.SRV_TELNET ) {
-            if( backword == null )
-                return 0;
-
-            return backword.stream().filter(content ->  content.getPayloadStr() != null &&
-                    content.getPayloadStr().contains("root")
-            ).count();
-        }
-        return 0;
-    }
-    // ~#
-    public static int isRootShell(Service service, List<BasicPacketInfo> forward) {
+    public static long getNumRoot(Service service, List<BasicPacketInfo> forward, List<BasicPacketInfo> backward) {
         if( service == Service.SRV_TELNET ) {
             if( forward == null )
                 return 0;
 
-            long count = forward.stream().filter(content -> content.getPayloadStr() != null &&
+            long forwardCnt =  forward.stream().filter(content ->  content.getPayloadStr() != null &&
+                    content.getPayloadStr().contains("root")).count();
+
+            long backwardCnt =  backward.stream().filter(content ->  content.getPayloadStr() != null &&
+                    content.getPayloadStr().contains("root")).count();
+
+            return forwardCnt + backwardCnt;
+        }
+        return 0;
+    }
+    // ~#
+    public static int isRootShell(Service service, List<BasicPacketInfo> backward) {
+        if( service == Service.SRV_TELNET ) {
+            if( backward == null )
+                return 0;
+
+            long count = backward.stream().filter(content -> content.getPayloadStr() != null &&
                     content.getPayloadStr().startsWith("root@") && content.getPayloadStr().endsWith("#")
             ).count();
             if( count >= 1 ) {
-                List<String> result = forward.stream().filter(content -> content.getPayloadStr() != null &&
+                List<String> result = backward.stream().filter(content -> content.getPayloadStr() != null &&
                         content.getPayloadStr().endsWith("#") &&
                         content.getPayloadStr().contains("root@")
                 ).map( content -> content.getPayloadStr().concat("\r\n")
@@ -86,12 +90,12 @@ public class ContentFeatureChecker {
         }
         return 0;
     }
-    public static int isSuAttempted(Service service, List<BasicPacketInfo> backword) {
+    public static int isSuAttempted(Service service, List<BasicPacketInfo> forward) {
         if( service == Service.SRV_TELNET ) {
-            if( backword == null )
+            if( forward == null )
                 return 0;
 
-            long count = backword.stream().filter(content -> content.getPayloadStr() != null &&
+            long count = forward.stream().filter(content -> content.getPayloadStr() != null &&
                             (
                             content.getPayloadStr().contains("su ") ||
                             content.getPayloadStr().contains("su -") ||
@@ -123,7 +127,7 @@ public class ContentFeatureChecker {
         return 0;
     }
 
-    public static long getNumShells(Service service, List<BasicPacketInfo> forward) {
+    public static long getNumShells(Service service, List<BasicPacketInfo> forward, List<BasicPacketInfo> backward) {
         if( service == Service.SRV_TELNET ) {
             if( forward == null )
                 return 0;
@@ -133,7 +137,14 @@ public class ContentFeatureChecker {
                                     content.getPayloadStr().contains("‘/bin/sh") ||
                                     content.getPayloadStr().contains("‘/bin/bash")
                             )
-            ).count();
+            ).count() +
+            backward.stream().filter(content -> content.getPayloadStr() != null &&
+                    (
+                            content.getPayloadStr().contains("‘/bin/sh") ||
+                                    content.getPayloadStr().contains("‘/bin/bash")
+                    )
+            ).count()
+                    ;
         }
         return 0;
     }
