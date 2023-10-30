@@ -1,13 +1,10 @@
 package cic.cs.unb.ca.jnetpcap.nslkdd;
 
-import cic.cs.unb.ca.jnetpcap.BasicFlow;
 import cic.cs.unb.ca.jnetpcap.BasicPacketInfo;
-import com.sun.org.apache.xpath.internal.operations.String;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ContentFeatureChecker {
 
