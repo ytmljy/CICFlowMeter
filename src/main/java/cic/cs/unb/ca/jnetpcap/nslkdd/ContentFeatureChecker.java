@@ -82,6 +82,8 @@ public class ContentFeatureChecker {
             long rootSuCount = backwardPacketInfo.stream().filter(
                     content -> content.getPayloadStr() != null && content.getPayloadStr().endsWith("#")
             ).count();
+
+            logger.error("isRootShell count:" + count + ", rootSuCount:" +rootSuCount);
             if( count >= 1 && rootSuCount  >= 1 ) {
                 return 1;
             }
@@ -106,11 +108,11 @@ public class ContentFeatureChecker {
             if( forward == null )
                 return 0;
 
-            return StringUtils.countMatches(forward, "vi ") +
-                    StringUtils.countMatches(forward, "cp ") +
-                    StringUtils.countMatches(forward, "chmod ") +
-                    StringUtils.countMatches(forward, "rm ") +
-                    StringUtils.countMatches(forward, "cat ");
+            return StringUtils.countMatches(forward, " vi ") +
+                    StringUtils.countMatches(forward, " cp ") +
+                    StringUtils.countMatches(forward, " chmod ") +
+                    StringUtils.countMatches(forward, " rm ") +
+                    StringUtils.countMatches(forward, " cat ");
         }
         return 0;
     }
