@@ -13,7 +13,7 @@ public class ContentFeatureChecker {
     public static final Logger logger = LoggerFactory.getLogger(ContentFeatureChecker.class);
 
     public static String getPritableText(Service service, List<BasicPacketInfo> packetInfoList) {
-        if( service == Service.SRV_TELNET ) {
+        if( service == Service.SRV_TELNET || service == Service.SRV_FTP || service == Service.SRV_FTP_DATA ) {
             return packetInfoList.stream().filter(content -> content.getPayloadStr() != null
             ).map(content -> content.getPayloadStr()
             ).collect(Collectors.joining());
