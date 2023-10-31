@@ -80,7 +80,7 @@ public class ContentFeatureChecker {
 
             long count = StringUtils.countMatches(backward, "root@");
             long rootSuCount = backwardPacketInfo.stream().filter(
-                    content -> content.getPayloadStr().endsWith("#")
+                    content -> content.getPayloadStr() != null && content.getPayloadStr().endsWith("#")
             ).count();
             if( count >= 1 && rootSuCount  >= 1 ) {
                 return 1;
