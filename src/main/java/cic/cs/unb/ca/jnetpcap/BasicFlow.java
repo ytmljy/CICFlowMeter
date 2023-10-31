@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import cic.cs.unb.ca.jnetpcap.nslkdd.*;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
@@ -1248,6 +1249,13 @@ public class BasicFlow {
 		}*/
         return "NeedManualLabel";
     }
+
+	private String forwardText = null;
+	private String backwardText = null;
+
+	public void makePritableText() {
+
+	}
 	
     public String dumpFlowBasedFeaturesNSLKDD(boolean debugFlag) {
 		try {
@@ -1267,18 +1275,22 @@ public class BasicFlow {
 			dump.append(urgent_packets).append(separator);         					//09 Urgent
 
 			//Content Featureres (Total: 13)
+
+			String forwardTxt = ContentFeatureChecker.getPritableText(this.service, this.forward);
+			String backendTxt = ContentFeatureChecker.getPritableText(this.service, this.backward);
+
 			dump.append(0).append(separator);         								//10 Hot
-			dump.append(ContentFeatureChecker.getNumFailedLogins(this.service, this.backward)).append(separator);	//11 Num Failed Logins
-			dump.append(ContentFeatureChecker.isLogin(this.service, this.backward)).append(separator);         		//12 Logged In
-			dump.append(ContentFeatureChecker.getNumCompromised(this.service, this.backward)).append(separator);		//13 Num Compromised
-			dump.append(ContentFeatureChecker.isRootShell(this.service, this.backward)).append(separator);      		//14 Root Shell
-			dump.append(ContentFeatureChecker.isSuAttempted(this.service, this.forward)).append(separator);        //15 Su Attempted
-			dump.append(ContentFeatureChecker.getNumRoot(this.service,this.forward, this.backward)).append(separator);         	//16 Num Root
-			dump.append(ContentFeatureChecker.getNumFileCreation(this.service, this.forward)).append(separator);   //17 Num File Creations
-			dump.append(ContentFeatureChecker.getNumShells(this.service, this.forward, this.backward)).append(separator);  		//18 Num Shells
+			dump.append(ContentFeatureChecker.getNumFailedLogins(this.service, backendTxt)).append(separator);	//11 Num Failed Logins
+			dump.append(ContentFeatureChecker.isLogin(this.service, backendTxt)).append(separator);         		//12 Logged In
+			dump.append(ContentFeatureChecker.getNumCompromised(this.service, backendTxt)).append(separator);		//13 Num Compromised
+			dump.append(ContentFeatureChecker.isRootShell(this.service, backendTxt)).append(separator);      		//14 Root Shell
+			dump.append(ContentFeatureChecker.isSuAttempted(this.service, forwardTxt)).append(separator);        //15 Su Attempted
+			dump.append(ContentFeatureChecker.getNumRoot(this.service, forwardTxt, backendTxt)).append(separator);         	//16 Num Root
+			dump.append(ContentFeatureChecker.getNumFileCreation(this.service, forwardTxt)).append(separator);   //17 Num File Creations
+			dump.append(ContentFeatureChecker.getNumShells(this.service, forwardTxt, backendTxt)).append(separator);  		//18 Num Shells
 			dump.append(0).append(separator);         								//19 Num Access Files
 			dump.append(0).append(separator);         								//20 Num Outbound Cmds
-			dump.append(ContentFeatureChecker.isHostLogin(this.service, this.forward)).append(separator);         								//21 Is Hot Logins
+			dump.append(ContentFeatureChecker.isHostLogin(this.service, forwardTxt)).append(separator);         								//21 Is Hot Logins
 			dump.append(0).append(separator);         								//22 Is Guest Login
 
 			//Time-Based Features (Total: 9)
