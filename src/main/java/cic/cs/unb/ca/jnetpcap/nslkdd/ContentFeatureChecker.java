@@ -80,7 +80,7 @@ public class ContentFeatureChecker {
 
             long count = StringUtils.countMatches(backward, "root@");
             long rootSuCount = backwardPacketInfo.stream().filter(
-                    content -> content.getPayloadStr() != null && content.getPayloadStr().endsWith("#")
+                    content -> content.getPayloadStr() != null && content.getPayloadStr().trim().endsWith("#")
             ).count();
 
             logger.error("isRootShell count:" + count + ", rootSuCount:" +rootSuCount);
