@@ -22,20 +22,21 @@ public class ContentFeatureChecker {
     }
 
     public static long getNumHot(Service service, String forward) {
-        if( service == Service.SRV_TELNET ) {
+        if( service == Service.SRV_TELNET || service == Service.SRV_FTP || service == Service.SRV_FTP_DATA ) {
             if( forward == null || forward.length() == 0)
                 return 0;
 
             return StringUtils.countMatches(forward, "cd /root") +
                     StringUtils.countMatches(forward, "rm -rf *") +
                     StringUtils.countMatches(forward, "chmod ") +
-                    StringUtils.countMatches(forward, "su ")
+                    StringUtils.countMatches(forward, "su ") +
+                    StringUtils.countMatches(forward, "root ")
                     ;
         }
         return 0;
     }
     public static long getNumFailedLogins(Service service, String backward) {
-        if( service == Service.SRV_TELNET ) {
+        if( service == Service.SRV_TELNET || service == Service.SRV_FTP || service == Service.SRV_FTP_DATA) {
             if( backward == null || backward.length() == 0)
                 return 0;
 
@@ -45,7 +46,7 @@ public class ContentFeatureChecker {
     }
 
     public static int isLogin(Service service, String backward) {
-        if( service == Service.SRV_TELNET ) {
+        if( service == Service.SRV_TELNET || service == Service.SRV_FTP || service == Service.SRV_FTP_DATA) {
             if( backward == null || backward.length() == 0 )
                 return 0;
 
@@ -63,7 +64,7 @@ public class ContentFeatureChecker {
     }
 
     public static long getNumCompromised(Service service, String backward) {
-        if( service == Service.SRV_TELNET ) {
+        if( service == Service.SRV_TELNET || service == Service.SRV_FTP || service == Service.SRV_FTP_DATA) {
             if( backward == null || backward.length() == 0 )
                 return 0;
 
@@ -74,7 +75,7 @@ public class ContentFeatureChecker {
     }
 
     public static long getNumRoot(Service service, String forward, String backward) {
-        if( service == Service.SRV_TELNET ) {
+        if( service == Service.SRV_TELNET || service == Service.SRV_FTP || service == Service.SRV_FTP_DATA) {
             if( forward == null )
                 return 0;
 
@@ -87,7 +88,7 @@ public class ContentFeatureChecker {
     }
     // ~#
     public static int isRootShell(Service service, String backward, List<BasicPacketInfo> backwardPacketInfo) {
-        if( service == Service.SRV_TELNET ) {
+        if( service == Service.SRV_TELNET || service == Service.SRV_FTP || service == Service.SRV_FTP_DATA) {
             if( backward == null || backwardPacketInfo == null )
                 return 0;
 
@@ -104,7 +105,7 @@ public class ContentFeatureChecker {
         return 0;
     }
     public static int isSuAttempted(Service service, String forward) {
-        if( service == Service.SRV_TELNET ) {
+        if( service == Service.SRV_TELNET || service == Service.SRV_FTP || service == Service.SRV_FTP_DATA) {
             if( forward == null )
                 return 0;
 
@@ -117,7 +118,7 @@ public class ContentFeatureChecker {
 
     // 'vi', 'cp', 'chmod', 'rm' 및 'cat
     public static long getNumFileCreation(Service service, String forward) {
-        if( service == Service.SRV_TELNET ) {
+        if( service == Service.SRV_TELNET || service == Service.SRV_FTP || service == Service.SRV_FTP_DATA) {
             if( forward == null )
                 return 0;
 
@@ -131,7 +132,7 @@ public class ContentFeatureChecker {
     }
 
     public static long getNumShells(Service service, String forward, String backward) {
-        if( service == Service.SRV_TELNET ) {
+        if( service == Service.SRV_TELNET || service == Service.SRV_FTP || service == Service.SRV_FTP_DATA) {
             if( forward == null )
                 return 0;
 
@@ -145,7 +146,7 @@ public class ContentFeatureChecker {
 
     // '/bin/sh', '/bin/bash'
     public static int isHostLogin(Service service, String forward) {
-        if( service == Service.SRV_TELNET ) {
+        if( service == Service.SRV_TELNET || service == Service.SRV_FTP || service == Service.SRV_FTP_DATA) {
             long count = StringUtils.countMatches(forward, "login: root");
             if( count >= 1 )
                 return 1;
