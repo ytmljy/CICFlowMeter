@@ -1282,7 +1282,7 @@ public class BasicFlow {
 			logger.error("forwardTxt:" + forwardTxt);
 			logger.error("backendTxt:" + backendTxt);
 
-			dump.append(0).append(separator);         								//10 Hot
+			dump.append(ContentFeatureChecker.getNumHot(this.service, forwardTxt)).append(separator);         								//10 Hot
 			dump.append(ContentFeatureChecker.getNumFailedLogins(this.service, backendTxt)).append(separator);	//11 Num Failed Logins
 			dump.append(ContentFeatureChecker.isLogin(this.service, backendTxt)).append(separator);         		//12 Logged In
 			dump.append(ContentFeatureChecker.getNumCompromised(this.service, backendTxt)).append(separator);		//13 Num Compromised

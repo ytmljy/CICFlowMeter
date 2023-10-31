@@ -21,6 +21,19 @@ public class ContentFeatureChecker {
             return null;
     }
 
+    public static long getNumHot(Service service, String forward) {
+        if( service == Service.SRV_TELNET ) {
+            if( forward == null || forward.length() == 0)
+                return 0;
+
+            return StringUtils.countMatches(forward, "cd /root") +
+                    StringUtils.countMatches(forward, "rm -rf *") +
+                    StringUtils.countMatches(forward, "chmod ") +
+                    StringUtils.countMatches(forward, "su ")
+                    ;
+        }
+        return 0;
+    }
     public static long getNumFailedLogins(Service service, String backward) {
         if( service == Service.SRV_TELNET ) {
             if( backward == null || backward.length() == 0)
