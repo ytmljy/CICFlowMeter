@@ -1286,7 +1286,7 @@ public class BasicFlow {
 			dump.append(ContentFeatureChecker.getNumFailedLogins(this.service, backendTxt)).append(separator);	//11 Num Failed Logins
 			dump.append(ContentFeatureChecker.isLogin(this.service, backendTxt)).append(separator);         		//12 Logged In
 			dump.append(ContentFeatureChecker.getNumCompromised(this.service, backendTxt)).append(separator);		//13 Num Compromised
-			dump.append(ContentFeatureChecker.isRootShell(this.service, backendTxt)).append(separator);      		//14 Root Shell
+			dump.append(ContentFeatureChecker.isRootShell(this.service, backendTxt, this.backward)).append(separator);      		//14 Root Shell
 			dump.append(ContentFeatureChecker.isSuAttempted(this.service, forwardTxt)).append(separator);        //15 Su Attempted
 			dump.append(ContentFeatureChecker.getNumRoot(this.service, forwardTxt, backendTxt)).append(separator);         	//16 Num Root
 			dump.append(ContentFeatureChecker.getNumFileCreation(this.service, forwardTxt)).append(separator);   //17 Num File Creations

@@ -73,13 +73,16 @@ public class ContentFeatureChecker {
         return 0;
     }
     // ~#
-    public static int isRootShell(Service service, String backward) {
+    public static int isRootShell(Service service, String backward, List<BasicPacketInfo> backwardPacketInfo) {
         if( service == Service.SRV_TELNET ) {
-            if( backward == null )
+            if( backward == null || backwardPacketInfo == null )
                 return 0;
 
             long count = StringUtils.countMatches(backward, "root@");
-            if( count >= 1 && backward.endsWith("#") ) {
+            long rootSuCount = backwardPacketInfo.stream().filter(
+                    content -> content.getPayloadStr().endsWith("#")
+            ).count();
+            if( count >= 1 && rootSuCount  >= 1 ) {
                 return 1;
             }
         }
