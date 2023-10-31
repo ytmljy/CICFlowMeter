@@ -1279,6 +1279,9 @@ public class BasicFlow {
 			String forwardTxt = ContentFeatureChecker.getPritableText(this.service, this.forward);
 			String backendTxt = ContentFeatureChecker.getPritableText(this.service, this.backward);
 
+			logger.error("forwardTxt:" + forwardTxt);
+			logger.error("backendTxt:" + backendTxt);
+
 			dump.append(0).append(separator);         								//10 Hot
 			dump.append(ContentFeatureChecker.getNumFailedLogins(this.service, backendTxt)).append(separator);	//11 Num Failed Logins
 			dump.append(ContentFeatureChecker.isLogin(this.service, backendTxt)).append(separator);         		//12 Logged In

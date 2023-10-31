@@ -40,7 +40,7 @@ public class ContentFeatureChecker {
             long passwordCnt = StringUtils.countMatches(backward,"Password: ");
             long welcomeCnt = StringUtils.countMatches(backward, "Welcome ");
 
-            logger.error("@@@ isLogin loginCnt:"+loginCnt+",passwordCnt:"+passwordCnt+", welcomeCnt:"+welcomeCnt);
+//            logger.error("@@@ isLogin loginCnt:"+loginCnt+",passwordCnt:"+passwordCnt+", welcomeCnt:"+welcomeCnt);
             if( loginCnt >= 1 && passwordCnt >= 1 && welcomeCnt >= 1 )
                 return 1;
             else
