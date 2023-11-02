@@ -30,7 +30,7 @@ public class ContentFeatureChecker {
                     StringUtils.countMatches(forward, "rm -rf *") +
                     StringUtils.countMatches(forward, "chmod ") +
                     StringUtils.countMatches(forward, "su ") +
-                    StringUtils.countMatches(forward, "root ")
+                    StringUtils.countMatches(forward, "root")
                     ;
         }
         return 0;
