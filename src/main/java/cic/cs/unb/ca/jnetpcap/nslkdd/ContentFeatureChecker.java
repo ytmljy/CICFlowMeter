@@ -128,9 +128,9 @@ public class ContentFeatureChecker {
                     StringUtils.countMatches(forward, " chmod ") +
                     StringUtils.countMatches(forward, " rm ") +
                     StringUtils.countMatches(forward, " cat ") +
-                    StringUtils.countMatches(forward, " mkdir ") +
-                    StringUtils.countMatches(forward, " rmdir ") +
-                    StringUtils.countMatches(forward, " delete ")
+                    StringUtils.countMatches(forward, "mkdir ") +
+                    StringUtils.countMatches(forward, "rmdir ") +
+                    StringUtils.countMatches(forward, "delete ")
                     ;
         }
         return 0;
