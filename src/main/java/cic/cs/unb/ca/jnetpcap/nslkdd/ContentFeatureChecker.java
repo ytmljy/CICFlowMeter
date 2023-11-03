@@ -123,15 +123,18 @@ public class ContentFeatureChecker {
             if( forward == null )
                 return 0;
 
-            return StringUtils.countMatches(forward, " vi ") +
-                    StringUtils.countMatches(forward, " cp ") +
-                    StringUtils.countMatches(forward, " chmod ") +
-                    StringUtils.countMatches(forward, " rm ") +
-                    StringUtils.countMatches(forward, " cat ") +
-                    StringUtils.countMatches(forward, "mkdir ") +
-                    StringUtils.countMatches(forward, "rmdir ") +
-                    StringUtils.countMatches(forward, "delete ")
-                    ;
+            if( service == Service.SRV_TELNET  )
+                return StringUtils.countMatches(forward, " vi ") +
+                        StringUtils.countMatches(forward, " cp ") +
+                        StringUtils.countMatches(forward, " chmod ") +
+                        StringUtils.countMatches(forward, " rm ") +
+                        StringUtils.countMatches(forward, " cat ");
+            else if( service == Service.SRV_FTP || service == Service.SRV_FTP_DATA )
+                return  StringUtils.countMatches(forward, " MKD ") +
+                        StringUtils.countMatches(forward, " RMD ") +
+                        StringUtils.countMatches(forward, " DELE ");
+            else
+                return 0;
         }
         return 0;
     }
