@@ -22,7 +22,7 @@ public class ContentFeatureChecker {
     }
 
     public static long getNumHot(Service service, String forward) {
-        if( service == Service.SRV_TELNET || service == Service.SRV_FTP || service == Service.SRV_FTP_DATA ) {
+        if( service == Service.SRV_FTP || service == Service.SRV_FTP_DATA ) {
             if( forward == null || forward.length() == 0)
                 return 0;
 
